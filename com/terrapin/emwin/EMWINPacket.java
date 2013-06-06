@@ -1,0 +1,35 @@
+
+package com.terrapin.emwin;
+
+import java.util.Date;
+
+public class EMWINPacket {
+
+    private String header = null;
+    private byte[] body = null;
+    public String fn;
+    public String ft;
+    public Date fd;
+    public int pn;
+    public int pt;
+    public int cs;
+
+    public void setHeader(String s) throws EMWINPacketException {
+        header = s;
+    }
+
+    public String getHeader() {
+        return header;
+    }
+
+    public void setBody(byte[] b) throws EMWINPacketException {
+        if (header == null)
+            throw new EMWINPacketException("Packet Header not set");
+        body = b;
+    }
+
+    public byte[] getBody() {
+        return body;
+    }
+
+}
