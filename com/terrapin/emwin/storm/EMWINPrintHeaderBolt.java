@@ -16,7 +16,7 @@ public class EMWINPrintHeaderBolt extends BaseBasicBolt {
     @Override
     public void execute(Tuple tuple, BasicOutputCollector collector) {
         p = (EMWINPacket)tuple.getValueByField("packet");
-        System.out.println(p.getHeader());
+        System.out.println(p.fn + ": " +p.pn +" of "+p.pt+" - "+p.fd);
     }
 
     @Override
