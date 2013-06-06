@@ -19,34 +19,36 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import backtype.storm.utils.Utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class EMWINSpout extends BaseRichSpout {
 
-    SpoutOutputCollector _collector;
-    Random _rand;
-    EMWINScanner sc;
-    EMWINValidator v;
-    Socket echoSocket = null;
-    OutputStream out = null;
-    EMWINInputStream in = null;
+    private SpoutOutputCollector _collector;
+    private EMWINScanner sc;
+    private EMWINValidator v;
+    private Socket emwinSDocket = null;
+    private OutputStream out = null;
+    private EMWINInputStream in = null;
+    public static final Logger log = LoggerFactory.getLogger(EMWINSpout.class);
 
     private BlockingQueue<EMWINPacket> queue = new ArrayBlockingQueue<EMWINPacket>(100);
 
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
 
         _collector = collector;
-        _rand = new Random();
 
 
         try {
-            echoSocket = new Socket("www.opennoaaport.net", 2211);
-            out = echoSocket.getOutputStream();
-            in = new EMWINInputStream(echoSocket.getInputStream());
+            log.info("connecting");
+            emwinSDocket = new Socket("www.opennoaaport.net", 2211);
+            out = emwinSDocket.getOutputStream();
+            in = new EMWINInputStream(emwinSDocket.getInputStream());
         } catch (UnknownHostException e) {
             System.err.println("Don't know about host");
             System.exit(1);
         } catch (IOException e) {
-            System.err.println("Couldn't get I/O for "
-                               + "the connection");
+            System.err.println("Couldn't get I/O for the connection");
             System.exit(1);
         }
 
@@ -55,6 +57,7 @@ public class EMWINSpout extends BaseRichSpout {
 
         sc = new EMWINScanner(in);
         v = new EMWINValidator();
+        log.info("Starting producer()");
         producer();
     }
 

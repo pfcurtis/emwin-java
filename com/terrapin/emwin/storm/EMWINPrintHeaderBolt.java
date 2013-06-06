@@ -22,5 +22,5 @@ public class EMWINPrintHeaderBolt extends BaseBasicBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer ofd) {
     }
-    
+
 }

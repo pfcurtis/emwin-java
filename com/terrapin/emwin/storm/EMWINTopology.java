@@ -18,12 +18,19 @@ import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.terrapin.emwin.*;
 
 public class EMWINTopology {
 
+    public static final Logger log = LoggerFactory.getLogger(EMWINTopology.class);
+
     public static void main(String[] args) throws AlreadyAliveException,
         InvalidTopologyException, InterruptedException {
+
+        log.info("Building Topology");
 
         TopologyBuilder tb = new TopologyBuilder();
 
@@ -35,5 +42,6 @@ public class EMWINTopology {
         LocalCluster cluster = new LocalCluster();
         cluster.submitTopology("EMWIN local topology",
                                conf, tb.createTopology());
+        log.info("Building Topology ... Done");
     }
 }
