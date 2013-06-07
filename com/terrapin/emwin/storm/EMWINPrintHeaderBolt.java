@@ -17,7 +17,7 @@ public class EMWINPrintHeaderBolt extends BaseBasicBolt {
     public void execute(Tuple tuple, BasicOutputCollector collector) {
         p = (EMWINPacket)tuple.getValueByField("packet");
         if (p.isHeaderValid())
-            System.out.println(p.fn + ": " +p.pn +" of "+p.pt+" + "+p.fd);
+            System.out.println(p.fn + ": " +p.pn +" of "+p.pt+" + "+p.fd+"  "+p.cs+"="+(int)p.getCalculatedChecksum());
         else
             System.out.println(p.fn + ": " +p.pn +" of "+p.pt+" - "+p.fd);
     }

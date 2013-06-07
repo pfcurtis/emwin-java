@@ -67,9 +67,10 @@ public class EMWINSpout extends BaseRichSpout {
                 try {
                     while (sc.hasNext()) {
                         EMWINPacket p = sc.next();
-                        if (v.checkHeader(p))
+                        if (v.checkHeader(p)) {
+                            v.setChecksum(p);
                             queue.put(p);
-                        else
+                        } else
                             System.out.println("Bad packet -");
                     }
                 } catch (Exception e) {

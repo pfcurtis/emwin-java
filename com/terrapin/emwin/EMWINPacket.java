@@ -15,6 +15,7 @@ public class EMWINPacket {
     public int cs;
     private boolean headerValid = false;
     private boolean checksumValid = false;
+    private char cksum = 0;
 
     public void setHeader(String s) throws EMWINPacketException {
         header = s;
@@ -44,5 +45,13 @@ public class EMWINPacket {
 
     public void headerValid(boolean b) {
        headerValid = b;
+    }
+
+    public void setCalculatedChecksum(char i) {
+       cksum = i;
+    }
+
+    public char getCalculatedChecksum() {
+        return cksum;
     }
 }

@@ -37,4 +37,12 @@ public class EMWINValidator {
         } else
             return false;
     }
+
+    public void setChecksum(EMWINPacket p) {
+        char cksum = 0;
+        byte[] b = p.getBody();
+        for (int i = 0; i < b.length; i++)
+            cksum += (char)b[i];
+        p.setCalculatedChecksum(cksum);
+    }
 }
