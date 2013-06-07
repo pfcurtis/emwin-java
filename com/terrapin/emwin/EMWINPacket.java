@@ -13,6 +13,8 @@ public class EMWINPacket {
     public int pn;
     public int pt;
     public int cs;
+    private boolean headerValid = false;
+    private boolean checksumValid = false;
 
     public void setHeader(String s) throws EMWINPacketException {
         header = s;
@@ -32,4 +34,15 @@ public class EMWINPacket {
         return body;
     }
 
+    public boolean isChecksumValid() {
+       return checksumValid;
+    }
+
+    public boolean isHeaderValid() {
+       return headerValid;
+    }
+
+    public void headerValid(boolean b) {
+       headerValid = b;
+    }
 }

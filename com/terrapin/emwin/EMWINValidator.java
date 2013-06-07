@@ -26,6 +26,7 @@ public class EMWINValidator {
     public boolean checkHeader(EMWINPacket p) throws EMWINPacketException, ParseException {
         m = hdr.matcher(p.getHeader());
         if (m.matches()) {
+            p.headerValid(true);
             p.fn = m.group(1);
             p.ft = m.group(2);
             p.pn = Integer.parseInt(m.group(3));
