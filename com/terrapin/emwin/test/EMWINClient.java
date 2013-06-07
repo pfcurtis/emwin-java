@@ -33,8 +33,8 @@ public class EMWINClient {
         Timer t = new Timer("Heartbeat", true);
         t.schedule(new EMWINHeartbeat(out), 0, 300000);
 
-        EMWINScanner sc = new EMWINScanner(in);
         EMWINValidator v = new EMWINValidator();
+        EMWINScanner sc = new EMWINScanner(in,v);
 
         while (sc.hasNext()) {
             EMWINPacket p = sc.next();

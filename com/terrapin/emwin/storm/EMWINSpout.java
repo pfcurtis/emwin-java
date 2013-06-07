@@ -55,8 +55,8 @@ public class EMWINSpout extends BaseRichSpout {
         Timer t = new Timer("Heartbeat", true);
         t.schedule(new EMWINHeartbeat(out), 0, 300000);
 
-        sc = new EMWINScanner(in);
         v = new EMWINValidator();
+        sc = new EMWINScanner(in, v);
         log.info("Starting producer()");
         producer();
     }
@@ -67,10 +67,9 @@ public class EMWINSpout extends BaseRichSpout {
                 try {
                     while (sc.hasNext()) {
                         EMWINPacket p = sc.next();
-                        if (v.checkHeader(p)) {
-                            v.setChecksum(p);
+                        if (p.isPacketValid())
                             queue.put(p);
-                        } else
+                        else
                             System.out.println("Bad packet -");
                     }
                 } catch (Exception e) {

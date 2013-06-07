@@ -2,6 +2,7 @@
 package com.terrapin.emwin;
 
 import java.util.Date;
+import java.text.ParseException;
 
 public class EMWINPacket {
 
@@ -15,10 +16,19 @@ public class EMWINPacket {
     public int cs;
     private boolean headerValid = false;
     private boolean checksumValid = false;
-    private char cksum = 0;
+    private long cksum = 0;
+    private EMWINValidator v;
 
-    public void setHeader(String s) throws EMWINPacketException {
+    private EMWINPacket() {
+    }
+
+    public EMWINPacket(EMWINValidator vin) {
+        v = vin;
+    }
+
+    public void setHeader(String s) throws EMWINPacketException, ParseException {
         header = s;
+        headerValid = v.checkHeader(this);
     }
 
     public String getHeader() {
@@ -29,6 +39,8 @@ public class EMWINPacket {
         if (header == null)
             throw new EMWINPacketException("Packet Header not set");
         body = b;
+        cksum = v.calculateChecksum(this);
+        checksumValid = (cksum == cs);
     }
 
     public byte[] getBody() {
@@ -36,22 +48,22 @@ public class EMWINPacket {
     }
 
     public boolean isChecksumValid() {
-       return checksumValid;
+        return checksumValid;
     }
 
     public boolean isHeaderValid() {
-       return headerValid;
+        return headerValid;
     }
 
     public void headerValid(boolean b) {
-       headerValid = b;
+        headerValid = b;
     }
 
-    public void setCalculatedChecksum(char i) {
-       cksum = i;
-    }
-
-    public char getCalculatedChecksum() {
+    public long getCalculatedChecksum() {
         return cksum;
+    }
+
+    public boolean isPacketValid() {
+        return (headerValid && checksumValid);
     }
 }

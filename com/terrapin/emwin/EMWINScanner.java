@@ -8,17 +8,19 @@ import java.util.Arrays;
 public class EMWINScanner {
 
     private EMWINInputStream i;
+    private EMWINValidator v;
     private StringBuffer header;
     private byte[] body;
     private EMWINPacket p;
 
-    public EMWINScanner(EMWINInputStream in) {
+    public EMWINScanner(EMWINInputStream in, EMWINValidator vin) {
         i = in;
+        v = vin;
     }
 
     public boolean hasNext() throws java.io.IOException {
         scan();
-        p = new EMWINPacket();
+        p = new EMWINPacket(v);
         try {
             p.setHeader(header.toString());
             p.setBody(body);
