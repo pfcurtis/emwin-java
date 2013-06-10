@@ -18,6 +18,7 @@ import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import backtype.storm.utils.Utils;
+import backtype.storm.tuple.MessageId;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,8 @@ public class EMWINSpout extends BaseRichSpout {
     private Socket emwinSDocket = null;
     private OutputStream out = null;
     private EMWINInputStream in = null;
+    private Random _rand;
+
     public static final Logger log = LoggerFactory.getLogger(EMWINSpout.class);
 
     private BlockingQueue<EMWINPacket> queue = new ArrayBlockingQueue<EMWINPacket>(100);
@@ -37,7 +40,7 @@ public class EMWINSpout extends BaseRichSpout {
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
 
         _collector = collector;
-
+        _rand = new Random();
 
         try {
             log.info("connecting");
@@ -67,10 +70,7 @@ public class EMWINSpout extends BaseRichSpout {
                 try {
                     while (sc.hasNext()) {
                         EMWINPacket p = sc.next();
-                        if (p.isPacketValid())
-                            queue.put(p);
-                        else
-                            System.out.println("Bad packet -");
+                        queue.put(p);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -86,8 +86,9 @@ public class EMWINSpout extends BaseRichSpout {
             if (queue.size() < 1)
                 return;
             else {
+                long msgid = _rand.nextLong();
                 EMWINPacket p = (EMWINPacket)queue.take();
-                _collector.emit(new Values(p));
+                _collector.emit(new Values(p, p.ft), msgid);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -104,7 +105,7 @@ public class EMWINSpout extends BaseRichSpout {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("packet"));
+        declarer.declare(new Fields("packet","type"));
     }
 }
 

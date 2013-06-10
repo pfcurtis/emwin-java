@@ -26,6 +26,7 @@ import com.terrapin.emwin.*;
 public class EMWINTopology {
 
     public static final Logger log = LoggerFactory.getLogger(EMWINTopology.class);
+    public static final boolean remote = true;
 
     public static void main(String[] args) throws AlreadyAliveException,
         InvalidTopologyException, InterruptedException {
@@ -39,9 +40,16 @@ public class EMWINTopology {
 
         Config conf = new Config();
         conf.setDebug(true);
-        LocalCluster cluster = new LocalCluster();
-        cluster.submitTopology("EMWIN local topology",
-                               conf, tb.createTopology());
-        log.info("Building Topology ... Done");
+        if (remote) {
+            log.info("Sleeping 1 seconds before submitting topology");
+            Thread.sleep(1000);
+            StormSubmitter.submitTopology("EMWIN topology",
+                                          conf, tb.createTopology());
+        } else {
+            LocalCluster cluster = new LocalCluster();
+            cluster.submitTopology("EMWIN local topology",
+                                   conf, tb.createTopology());
+            log.info("Building Topology ... Done");
+        }
     }
 }
