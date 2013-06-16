@@ -56,7 +56,8 @@ public class EMWINTopology {
         TopologyBuilder tb = new TopologyBuilder();
 
         tb.setSpout("emwin_spout", new EMWINSpout(), 1);
-        tb.setBolt("emwin_print_header", new EMWINPrintHeaderBolt(), 2).shuffleGrouping("emwin_spout");
+        tb.setBolt("emwin_sort", new EMWINSortBolt(), 2).shuffleGrouping("emwin_spout");
+        tb.setBolt("emwin_print_header", new EMWINPrintHeaderBolt(), 2).shuffleGrouping("text");
 
         Config conf = new Config();
         conf.setDebug(true);
