@@ -17,9 +17,10 @@ import java.util.Map;
 
 import com.terrapin.emwin.EMWINPacket;
 
-public class EMWINPrintHeaderBolt extends BaseBasicBolt implements IBasicBolt {
+public class EMWINSortBolt extends BaseBasicBolt implements IBasicBolt {
 
-    public final Logger log = LoggerFactory.getLogger(EMWINPrintHeaderBolt.class);
+    public final Logger log = LoggerFactory.getLogger(EMWINSortBolt.class);
+    private String ptype;
     private EMWINPacket p;
     private TopologyContext tc;
 
@@ -32,15 +33,32 @@ public class EMWINPrintHeaderBolt extends BaseBasicBolt implements IBasicBolt {
 
     @Override
     public void execute(Tuple tuple, BasicOutputCollector collector) {
+        ptype = tuple.getValueByField("type");
         p = (EMWINPacket)tuple.getValueByField("packet");
-        if (p.isPacketValid())
-            log.info("("+tc.getThisTaskId()+") "+p.fn + ": " +p.pn +" of "+p.pt+" + "+p.fd);
-        else
-            log.info("("+tc.getThisTaskId()+") "+p.fn + ": " +p.pn +" of "+p.pt+" - "+p.fd);
+
+        switch (ptype) {
+        case "TXT":
+            collector.emit("text", tuple, new Values(p));
+            break;
+        case "ZIS":
+            collector.emit("zis", tuple, new Values(p));
+            break;
+        case "JPG":
+        case "GIF":
+            collector.emit("image", tuple, new Values(p));
+            break;
+        default:
+            collector.emit("unknown", tuple, new Values(p));
+            break;
+        }
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer ofd) {
+        declarer.declareStream("text", new Fields("packet"));
+        declarer.declareStream("image", new Fields("packet"));
+        declarer.declareStream("zis", new Fields("packet"));
+        declarer.declareStream("unknown", new Fields("packet"));
     }
 
 }
