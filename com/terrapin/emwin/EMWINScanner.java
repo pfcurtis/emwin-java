@@ -8,11 +8,28 @@ public class EMWINScanner {
 	private byte[] body;
 	private EMWINPacket p;
 
+	/**
+	 * This class examines the incoming byte stream for specific character sequences. The sequences signal the start of the two types
+	 * of packets received: data packets and server lists. Data packets always begin with "/PF" while server list packets begin with "/ServerList/"
+	 * <p>
+	 * Once the data packet start is detected, an EMWINPacket is constructed and validated
+	 * 
+	 * @param in the raw data stream
+	 * @param vin an instance of the validator class
+	 */
 	public EMWINScanner(EMWINInputStream in, EMWINValidator vin) {
 		i = in;
 		v = vin;
 	}
 
+	/**
+	 * This method blocks until a complete packet has been received. When a full packet is available, the method returns. This method
+	 * would be used as the test in a while() loop.
+	 * 
+	 * @return true when a packet is available
+	 * @throws java.io.IOException
+	 */
+	// This method blocks until a packet is available
 	public boolean hasNext() throws java.io.IOException {
 		scan();
 		p = new EMWINPacket(v);
@@ -26,10 +43,17 @@ public class EMWINScanner {
 		return true;
 	}
 
+	/**
+	 * This method returns the constructed EMWINPacket. This method would be used inside a while() to retrieve the data.
+	 *   
+	 * @return complete data packet
+	 * @see EMWINPacket
+	 */
 	public EMWINPacket next() {
 		return p;
 	}
 
+	/* We are scanning for two types of packets. A data packet starts with "/PF" and the server list starts with "/ServerList" */
 	private void scan() throws java.io.IOException {
 
 		int l;
@@ -59,6 +83,7 @@ public class EMWINScanner {
 				for (int i = 0; i < hdr.length; i++)
 					hdr_c[i] = (char) hdr[i];
 				header.append(hdr_c);
+				// Remove the CR + NL characters
 				i.getDataInputStream().read();
 				i.getDataInputStream().read();
 				body = new byte[1024];

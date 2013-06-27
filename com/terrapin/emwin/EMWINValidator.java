@@ -6,12 +6,20 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.text.ParseException;
 
+/**
+ * This class checks the header information transmitted from the data source the packet header is in two formats:
+ * <pre>
+ * /PFFWFSGFMO.ZIS/PN 3    /PT 3    /CS 100468/FD6/3/2013 6:56:45 PM    /DL0881
+ * /PFG08HURUS.JPG/PN 53   /PT 75   /CS 125691/FD6/3/2013 12:13:01 PM
+ * </pre>
+ * 
+ * This class uses a regular expression to extract the information from the header to populate the fields in the EMWINPacket class
+ * 
+ * @see EMWINPacket
+*/
+
 public class EMWINValidator {
 
-    /*
-     * /PFFWFSGFMO.ZIS/PN 3    /PT 3    /CS 100468/FD6/3/2013 6:56:45 PM    /DL0881
-     * /PFG08HURUS.JPG/PN 53   /PT 75   /CS 125691/FD6/3/2013 12:13:01 PM
-    */
     private static final String HEADER_REGEX = "/PF([A-Z0-9]{8})\\.([A-Z0-9]{3})/PN\\s+(\\d+)\\s+/PT\\s+(\\d+)\\s+/CS (\\d+).*/FD(\\d+\\/\\d+\\/\\d{4} \\d+:\\d+:\\d+ [A|P]M).*";
     private Pattern hdr;
     private Matcher m;
@@ -23,6 +31,14 @@ public class EMWINValidator {
         hdr = Pattern.compile(HEADER_REGEX);
     }
 
+    /**
+     * This method reads the header from an EMWINPacket and validates it. If the regular expression matches, the EMWINPacket fields are populated
+     * @see EMWINPacket 
+     * @param p Packet to be checked
+     * @return true, if packet header is valid
+     * @throws EMWINPacketException
+     * @throws ParseException
+     */
     public boolean checkHeader(EMWINPacket p) throws EMWINPacketException, ParseException {
         m = hdr.matcher(p.getHeader());
         if (m.matches()) {
@@ -38,6 +54,12 @@ public class EMWINValidator {
             return false;
     }
 
+    /**
+     * Calculate the packet body checksum. Used to verify the data in the packet as being valid. This value is compared to the checksum transmitted from the data source
+     * @see EMWINPacket
+     * @param p packet to calculate the checksum
+     * @return the checksum value
+     */
     public long calculateChecksum(EMWINPacket p) {
         long cksum = 0;
         byte[] b = p.getBody();
