@@ -32,7 +32,8 @@ public class EMWINHeartbeat extends TimerTask {
     /**
      * TimeTask run method
      */
-    public void run() {
+    @Override
+	public void run() {
         try {
             out.write(b);
         } catch (Exception e) {
