@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.terrapin.emwin.object.TextItem;
 import com.terrapin.emwin.object.Zone;
+import com.terrapin.emwin.object.vtecItem;
 
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.BasicOutputCollector;
@@ -29,15 +30,19 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
     private static final String NEW_STATE = "([A-Z][A-Z])([C|Z])(\\d{3}|ALL)-(.*)";
     private static final String EXPIRE_DATE = "(\\d{6})";
     private static final String STATE = "([A-Z][A-Z])([C|Z])(\\d{3}|ALL)";
+    private static final String VTEC_REGEX = "\\/O\\.(\\w{3})\\.(\\w{4}\\.\\w{2}\\.\\w\\.\\w{4})\\.(\\w{12})\\-(\\w{12})\\/";
 
     private Pattern issuer;
     private Pattern nwsDate;
     private Pattern newState;
     private Pattern expires;
     private Pattern state;
+    private Pattern vtec;
 
     private Matcher m;
     private TextItem t;
+
+    private ArrayList<Zone> zlist;
 
     @Override
     public void prepare(Map stormConf, TopologyContext context) {
@@ -46,20 +51,21 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
         newState = Pattern.compile(NEW_STATE);
         expires = Pattern.compile(EXPIRE_DATE);
         state = Pattern.compile(STATE);
+        vtec = Pattern.compile(VTEC_REGEX);
         log.info("compiled regexes");
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        // TODO Auto-generated method stub
         declarer.declareStream("text_item", new Fields("item"));
+        declarer.declareStream("vtec_item", new Fields("item"));
     }
 
     @Override
     public void execute(Tuple input, BasicOutputCollector collector) {
         // TODO Auto-generated method stub
         t = (TextItem) input.getValueByField("item");
-        log.info(t.getPacketFileName()+"."+t.getPacketFileType()+" "+t.getPacketDate().getTime());
+        log.debug(t.getPacketFileName()+"."+t.getPacketFileType()+" "+t.getPacketDate().getTime());
 
         Scanner scanner = new Scanner(t.getBody());
         while (scanner.hasNextLine()) {
@@ -67,7 +73,7 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
 
             // process the line
             if (line.indexOf("$$") != -1)
-                log.info("New Text Message detected.");
+                log.debug("New Text Message detected.");
 
 
             m = issuer.matcher(line);
@@ -82,9 +88,21 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
                 log.debug(m.group(1) + m.group(2) + " " + m.group(3));
             }
 
+            m = vtec.matcher(line);
+            if (m.matches()) {
+                vtecItem v = new vtecItem();
+		log.info("VTEC Key = "+m.group(2));
+                v.setVtecKey(m.group(2));
+                v.setAction(m.group(1));
+                v.setZones(zlist);
+                v.setBegin(m.group(3));
+                v.setEnd(m.group(4));
+                log.info("******* "+v.toString());
+            }
+
             m = newState.matcher(line);
             if (m.matches()) {
-                ArrayList<Zone> zlist = new ArrayList();
+                zlist = new ArrayList();
                 boolean notSeenExpire = true;
                 log.debug("st="+m.group(1) + "  z="+m.group(2) + "  c="+m.group(3));
                 String st = m.group(1);
@@ -128,9 +146,9 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
                         sscan = scanner.nextLine().split("-");
                 }
                 t.setZones(zlist);
-		Iterator itr = t.getZones().iterator();
-		while (itr.hasNext())
-			log.info(itr.next().toString());
+                Iterator itr = t.getZones().iterator();
+                while (itr.hasNext())
+                    log.debug(itr.next().toString());
             }
 
         }
