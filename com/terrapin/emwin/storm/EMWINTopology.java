@@ -49,12 +49,12 @@ public class EMWINTopology {
         tb.setBolt("emwin_sort", new SortBolt(), 2)
         .shuffleGrouping("emwin_spout");
 
-        tb.setBolt("text_assemble", new AssembleTextPacketsBolt(), 2)
+        tb.setBolt("text_assemble", new AssembleTextPacketsBolt(), 1)
         .shuffleGrouping("emwin_sort", "text");
 
         tb.setBolt("text_parse", new ParseTextItem(), 2)
-        .shuffleGrouping("emwin_sort","text_parse")
-        .shuffleGrouping("text_assemble", "text_parse");
+        .shuffleGrouping("text_assemble", "text_item")
+        .shuffleGrouping("emwin_sort", "text_item");
 
         Config conf = new Config();
         conf.setDebug(true);

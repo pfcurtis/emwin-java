@@ -67,6 +67,11 @@ public class Zone implements Serializable {
 		this.zone = zone;
 	}
 
+	@Override
+	public String toString() {
+		return this.state + ":" + this.code + ":" +this.zone;
+        }
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */

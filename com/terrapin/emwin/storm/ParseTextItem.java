@@ -2,6 +2,7 @@ package com.terrapin.emwin.storm;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Iterator;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -85,7 +86,7 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
             if (m.matches()) {
                 ArrayList<Zone> zlist = new ArrayList();
                 boolean notSeenExpire = true;
-                log.info("st="+m.group(1) + "  z="+m.group(2) + "  c="+m.group(3));
+                log.debug("st="+m.group(1) + "  z="+m.group(2) + "  c="+m.group(3));
                 String st = m.group(1);
                 String zcode = m.group(2);
 
@@ -96,7 +97,7 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
 
                 while (notSeenExpire) {
                     for (int x = 0; x < sscan.length; x++) {
-                        log.info("  c="+sscan[x]);
+                        log.debug("  c="+sscan[x]);
 
                         // range of zones == "053>061"
                         if (sscan[x].indexOf(">") != -1) {
@@ -127,7 +128,9 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
                         sscan = scanner.nextLine().split("-");
                 }
                 t.setZones(zlist);
-                log.info(t.getZones().size() + " zones read.");
+		Iterator itr = t.getZones().iterator();
+		while (itr.hasNext())
+			log.info(itr.next().toString());
             }
 
         }

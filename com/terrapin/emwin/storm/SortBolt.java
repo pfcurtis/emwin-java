@@ -39,12 +39,10 @@ public class SortBolt extends BaseBasicBolt {
 
         switch (ptype) {
         case "TXT":
-//            if ((p.pn == 1) && (p.pt == 1)) {
-            if (p.pt == 1) {
+            if ((p.pn == 1) && (p.pt == 1)) {
                 try {
-                    collector.emit("text_parse", new Values(new TextItem(p)));
+                    collector.emit("text_item", new Values(new TextItem(p)));
                 } catch (UnsupportedEncodingException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             } else {
@@ -66,7 +64,7 @@ public class SortBolt extends BaseBasicBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer ofd) {
-        ofd.declareStream("text_parse", new Fields("item"));
+        ofd.declareStream("text_item", new Fields("item"));
         ofd.declareStream("text", new Fields("packet"));
         ofd.declareStream("image", new Fields("packet"));
         ofd.declareStream("zis", new Fields("packet"));
