@@ -22,134 +22,134 @@ import backtype.storm.tuple.Tuple;
 
 public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
 
-	public final Logger log = LoggerFactory.getLogger(ParseTextItem.class);
-	private static final String ISSUER_REGEX = "(\\w{4}\\w*)\\s+([B|R|N|T|P|K|C]\\w{3})\\s+(\\d{6})";
-	private static final String DATE_REGEX = "(\\d{1,2})(\\d{2}) ([A|P]M) ([A-Z][A-Z][A-Z]) [A-Z][A-Z][A-Z] ([A-Z][A-Z][A-Z]) ([0-9]+) ([0-9]+)";
-	private static final String NEW_STATE = "([A-Z][A-Z])([C|Z])(\\d{3}|ALL)-(.*)";
-	private static final String EXPIRE_DATE = "(\\d{6})";
-	private static final String STATE = "([A-Z][A-Z])([C|Z])(\\d{3}|ALL)";
+    public final Logger log = LoggerFactory.getLogger(ParseTextItem.class);
+    private static final String ISSUER_REGEX = "(\\w{4}\\w*)\\s+([B|R|N|T|P|K|C]\\w{3})\\s+(\\d{6})";
+    private static final String DATE_REGEX = "(\\d{1,2})(\\d{2}) ([A|P]M) ([A-Z][A-Z][A-Z]) [A-Z][A-Z][A-Z] ([A-Z][A-Z][A-Z]) ([0-9]+) ([0-9]+)";
+    private static final String NEW_STATE = "([A-Z][A-Z])([C|Z])(\\d{3}|ALL)-(.*)";
+    private static final String EXPIRE_DATE = "(\\d{6})";
+    private static final String STATE = "([A-Z][A-Z])([C|Z])(\\d{3}|ALL)";
 
-	private Pattern issuer;
-	private Pattern nwsDate;
-	private Pattern newState;
-	private Pattern expires;
-	private Pattern state;
+    private Pattern issuer;
+    private Pattern nwsDate;
+    private Pattern newState;
+    private Pattern expires;
+    private Pattern state;
 
-	private Matcher m;
-	private TextItem t;
+    private Matcher m;
+    private TextItem t;
 
-	@Override
-	public void prepare(Map stormConf, TopologyContext context) {
-		issuer = Pattern.compile(ISSUER_REGEX);
-		nwsDate = Pattern.compile(DATE_REGEX);
-		newState = Pattern.compile(NEW_STATE);
-		expires = Pattern.compile(EXPIRE_DATE);
-		state = Pattern.compile(STATE);
-		log.info("compiled regexes");
-	}
+    @Override
+    public void prepare(Map stormConf, TopologyContext context) {
+        issuer = Pattern.compile(ISSUER_REGEX);
+        nwsDate = Pattern.compile(DATE_REGEX);
+        newState = Pattern.compile(NEW_STATE);
+        expires = Pattern.compile(EXPIRE_DATE);
+        state = Pattern.compile(STATE);
+        log.info("compiled regexes");
+    }
 
-	@Override
-	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		// TODO Auto-generated method stub
-		declarer.declareStream("text_item", new Fields("item"));
-	}
+    @Override
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+        // TODO Auto-generated method stub
+        declarer.declareStream("text_item", new Fields("item"));
+    }
 
-	@Override
-	public void execute(Tuple input, BasicOutputCollector collector) {
-		// TODO Auto-generated method stub
-		t = (TextItem) input.getValueByField("item");
-		log.info(t.getPacketFileName()+"."+t.getPacketFileType()+" "+t.getPacketDate().getTime());
+    @Override
+    public void execute(Tuple input, BasicOutputCollector collector) {
+        // TODO Auto-generated method stub
+        t = (TextItem) input.getValueByField("item");
+        log.info(t.getPacketFileName()+"."+t.getPacketFileType()+" "+t.getPacketDate().getTime());
 
-		Scanner scanner = new Scanner(t.getBody());
-		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine();
+        Scanner scanner = new Scanner(t.getBody());
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
 
-			// process the line
-			if (line.indexOf("$$") != -1)
-				log.info("New Text Message detected.");
-			
-			
-			m = issuer.matcher(line);
-			if (m.matches()) {
-					log.debug("mtype=" + m.group(1) + "  wid=" + m.group(2) + "  date=" + m.group(3));
-					t.setMtype(m.group(1));
-					t.setWid(m.group(2));
-			}
-			
-			m = nwsDate.matcher(line);
-			if (m.matches()) {
-				log.debug(m.group(1) + m.group(2) + " " + m.group(3));
-			}
-			
-			m = newState.matcher(line);
-			if (m.matches()) {
-				ArrayList<Zone> zlist = new ArrayList();
-				boolean notSeenExpire = true;
-				log.info("st="+m.group(1) + "  z="+m.group(2) + "  c="+m.group(3));
-				String st = m.group(1);
-				String zcode = m.group(2);
-				
-				Zone z = new Zone(m.group(1), m.group(2), m.group(3));
-				zlist.add(z);
-				
-				String[] sscan = m.group(4).split("-");
-				
-				while (notSeenExpire) {
-					for (int x = 0; x < sscan.length; x++) {
-						log.info("  c="+sscan[x]);
-						
-						// range of zones == "053>061"
-						if (sscan[x].indexOf(">") != -1) {
-							parseRangeToken(zlist, sscan[x], st, zcode);
-							continue;
-						}	
-				
-						// Change of the state SSCNNNN
-						Matcher stateRE = state.matcher(sscan[x]);
-						if (stateRE.matches()) {
-							st = stateRE.group(1);
-							zcode = stateRE.group(2);
-							zlist.add(new Zone(st,zcode,stateRE.group(3)));
-							continue;
-						}
-						
-						// yymmdd- 
-						Matcher expireRE = expires.matcher(sscan[x]);
-						if (expireRE.matches()) {
-							notSeenExpire = false;
-							continue;
-						}
-						
-						zlist.add(new Zone(st, zcode, sscan[x]));
-					}
-					
-					if (notSeenExpire)
-						sscan = scanner.nextLine().split("-");
-				}
-				t.setZones(zlist);
-				log.info(t.getZones().size() + " zones read.");
-			}
-			
-		}
-	}
-	
-	private void parseRangeToken(ArrayList<Zone> zlist, String t, String st, String zc) {
-		String[] s = t.split(">");
+            // process the line
+            if (line.indexOf("$$") != -1)
+                log.info("New Text Message detected.");
 
-		Matcher stateRE = state.matcher(s[0]);
-		if (stateRE.matches()) {
-			st = stateRE.group(1);
-			zc = stateRE.group(2);
-			s[0] = stateRE.group(3);
-		}
-		
-		int start = Integer.valueOf(s[0]).intValue();
-		int end = Integer.valueOf(s[1]).intValue();
-		
-		for (int x = start; x <= end; x++) {
-			Zone z = new Zone(st, zc, Integer.toString(x));
-			zlist.add(z);
-		}
-	}
+
+            m = issuer.matcher(line);
+            if (m.matches()) {
+                log.debug("mtype=" + m.group(1) + "  wid=" + m.group(2) + "  date=" + m.group(3));
+                t.setMtype(m.group(1));
+                t.setWid(m.group(2));
+            }
+
+            m = nwsDate.matcher(line);
+            if (m.matches()) {
+                log.debug(m.group(1) + m.group(2) + " " + m.group(3));
+            }
+
+            m = newState.matcher(line);
+            if (m.matches()) {
+                ArrayList<Zone> zlist = new ArrayList();
+                boolean notSeenExpire = true;
+                log.info("st="+m.group(1) + "  z="+m.group(2) + "  c="+m.group(3));
+                String st = m.group(1);
+                String zcode = m.group(2);
+
+                Zone z = new Zone(m.group(1), m.group(2), m.group(3));
+                zlist.add(z);
+
+                String[] sscan = m.group(4).split("-");
+
+                while (notSeenExpire) {
+                    for (int x = 0; x < sscan.length; x++) {
+                        log.info("  c="+sscan[x]);
+
+                        // range of zones == "053>061"
+                        if (sscan[x].indexOf(">") != -1) {
+                            parseRangeToken(zlist, sscan[x], st, zcode);
+                            continue;
+                        }
+
+                        // Change of the state SSCNNNN
+                        Matcher stateRE = state.matcher(sscan[x]);
+                        if (stateRE.matches()) {
+                            st = stateRE.group(1);
+                            zcode = stateRE.group(2);
+                            zlist.add(new Zone(st,zcode,stateRE.group(3)));
+                            continue;
+                        }
+
+                        // yymmdd-
+                        Matcher expireRE = expires.matcher(sscan[x]);
+                        if (expireRE.matches()) {
+                            notSeenExpire = false;
+                            continue;
+                        }
+
+                        zlist.add(new Zone(st, zcode, sscan[x]));
+                    }
+
+                    if (notSeenExpire)
+                        sscan = scanner.nextLine().split("-");
+                }
+                t.setZones(zlist);
+                log.info(t.getZones().size() + " zones read.");
+            }
+
+        }
+    }
+
+    private void parseRangeToken(ArrayList<Zone> zlist, String t, String st, String zc) {
+        String[] s = t.split(">");
+
+        Matcher stateRE = state.matcher(s[0]);
+        if (stateRE.matches()) {
+            st = stateRE.group(1);
+            zc = stateRE.group(2);
+            s[0] = stateRE.group(3);
+        }
+
+        int start = Integer.valueOf(s[0]).intValue();
+        int end = Integer.valueOf(s[1]).intValue();
+
+        for (int x = start; x <= end; x++) {
+            Zone z = new Zone(st, zc, Integer.toString(x));
+            zlist.add(z);
+        }
+    }
 
 }

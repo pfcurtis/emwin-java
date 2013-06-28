@@ -40,13 +40,13 @@ public class SortBolt extends BaseBasicBolt {
         switch (ptype) {
         case "TXT":
 //            if ((p.pn == 1) && (p.pt == 1)) {
-            if (p.pn == 1) {
+            if (p.pt == 1) {
                 try {
-					collector.emit("text_parse", new Values(new TextItem(p)));
-				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+                    collector.emit("text_parse", new Values(new TextItem(p)));
+                } catch (UnsupportedEncodingException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             } else {
                 collector.emit("text", new Values(p));
             }
