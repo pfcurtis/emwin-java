@@ -1,12 +1,14 @@
 package com.terrapin.emwin;
 
+import com.terrapin.emwin.object.Packet;
+
 public class EMWINScanner {
 
 	private EMWINInputStream i;
 	private EMWINValidator v;
 	private StringBuffer header;
 	private byte[] body;
-	private EMWINPacket p;
+	private Packet p;
 
 	/**
 	 * This class examines the incoming byte stream for specific character sequences. The sequences signal the start of the two types
@@ -32,7 +34,7 @@ public class EMWINScanner {
 	// This method blocks until a packet is available
 	public boolean hasNext() throws java.io.IOException {
 		scan();
-		p = new EMWINPacket(v);
+		p = new Packet(v);
 		try {
 			p.setHeader(header.toString());
 			p.setBody(body);
@@ -47,9 +49,9 @@ public class EMWINScanner {
 	 * This method returns the constructed EMWINPacket. This method would be used inside a while() to retrieve the data.
 	 *   
 	 * @return complete data packet
-	 * @see EMWINPacket
+	 * @see Packet
 	 */
-	public EMWINPacket next() {
+	public Packet next() {
 		return p;
 	}
 

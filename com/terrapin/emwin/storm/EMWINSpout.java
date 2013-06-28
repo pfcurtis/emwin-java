@@ -23,9 +23,9 @@ import backtype.storm.tuple.Values;
 
 import com.terrapin.emwin.EMWINHeartbeat;
 import com.terrapin.emwin.EMWINInputStream;
-import com.terrapin.emwin.EMWINPacket;
 import com.terrapin.emwin.EMWINScanner;
 import com.terrapin.emwin.EMWINValidator;
+import com.terrapin.emwin.object.Packet;
 
 public class EMWINSpout extends BaseRichSpout {
 
@@ -39,7 +39,7 @@ public class EMWINSpout extends BaseRichSpout {
 
 	private final Logger log = LoggerFactory.getLogger(EMWINSpout.class);
 
-	private BlockingQueue<EMWINPacket> queue = new ArrayBlockingQueue<EMWINPacket>(
+	private BlockingQueue<Packet> queue = new ArrayBlockingQueue<Packet>(
 			100);
 
 	@Override
@@ -81,7 +81,7 @@ public class EMWINSpout extends BaseRichSpout {
 			public void run() {
 				try {
 					while (sc.hasNext()) {
-						EMWINPacket p = sc.next();
+						Packet p = sc.next();
 						queue.put(p);
 					}
 				} catch (Exception e) {
@@ -99,7 +99,7 @@ public class EMWINSpout extends BaseRichSpout {
 				return;
 			else {
 				long msgid = _rand.nextLong();
-				EMWINPacket p = queue.take();
+				Packet p = queue.take();
 				_collector.emit(new Values(p, p.ft), msgid);
 			}
 		} catch (Exception e) {

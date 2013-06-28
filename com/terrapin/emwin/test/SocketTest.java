@@ -3,15 +3,13 @@ package com.terrapin.emwin.test;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
-import java.util.regex.*;
 import java.text.ParseException;
-import com.terrapin.emwin.*;
+import com.terrapin.emwin.object.PacketException;
 
 public class SocketTest {
 
     private static DataInputStream dis;
-    public static void main(String[] args) throws IOException, EMWINPacketException, ParseException {
+    public static void main(String[] args) throws IOException, PacketException, ParseException {
 
 
 

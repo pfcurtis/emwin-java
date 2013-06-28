@@ -1,12 +1,12 @@
 
 
-package com.terrapin.emwin;
+package com.terrapin.emwin.object;
 
-public class EMWINPacketException extends Exception {
+public class PacketException extends Exception {
 
     private String message;
 
-    public EMWINPacketException(String s) {
+    public PacketException(String s) {
         super(s, new Throwable());
         System.err.println(s);
         message = s;

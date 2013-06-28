@@ -8,6 +8,8 @@ import java.util.Properties;
 import com.google.common.io.Resources;
 
 import com.terrapin.emwin.*;
+import com.terrapin.emwin.object.Packet;
+import com.terrapin.emwin.object.PacketException;
 
 public class EMWINClient {
 
@@ -31,7 +33,7 @@ public class EMWINClient {
 	}
 
 	public static void main(String[] args) throws IOException,
-			EMWINPacketException, ParseException {
+			PacketException, ParseException {
 
 		Socket emwinSocket = null;
 		OutputStream out = null;
@@ -61,7 +63,7 @@ public class EMWINClient {
 		EMWINScanner sc = new EMWINScanner(in, v);
 
 		while (sc.hasNext()) {
-			EMWINPacket p = sc.next();
+			Packet p = sc.next();
 			if (v.checkHeader(p))
 				System.out.println(p.pn + " of " + p.pt + ": " + p.fn + " "
 						+ p.fd + " +");

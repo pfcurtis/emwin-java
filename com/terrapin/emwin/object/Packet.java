@@ -1,19 +1,24 @@
 
-package com.terrapin.emwin;
+package com.terrapin.emwin.object;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.text.ParseException;
 
+import com.terrapin.emwin.EMWINScanner;
+import com.terrapin.emwin.EMWINValidator;
+
 /**
  * This class represents a single packet received on the EMWIN data stream
- * 
+ *
  * @author pcurtis
  *
  */
-public class EMWINPacket {
+public class Packet implements Serializable {
 
     private String header = null;
     private byte[] body = null;
+    private static final long serialVersionUID = 2L;
     /**
      * The eight character file name
      */
@@ -23,16 +28,16 @@ public class EMWINPacket {
      */
     public String ft;
     /**
-     * The file creation date as a Java Date
+     * The file creation date (as transmitted from NOAA) as a Java Date
      */
     public Date fd;
     /**
-     * The total number of packets of this filename/filetype 
+     * The total number of packets of this filename/filetype
      */
     public int pn;
     /**
      * The sequence number of this packet (part number)
-     * 
+     *
      * @see pn
      */
     public int pt;
@@ -45,28 +50,28 @@ public class EMWINPacket {
     private long cksum = 0;
     private EMWINValidator v;
 
-    private EMWINPacket() {
+    private Packet() {
     }
 
-    public EMWINPacket(EMWINValidator vin) {
+    public Packet(EMWINValidator vin) {
         v = vin;
     }
-/**
- * Set the header string of this packet. Used in the scanner
- * @see EMWINScanner
- * @param s
- * @throws EMWINPacketException
- * @throws ParseException
- */
-    public void setHeader(String s) throws EMWINPacketException, ParseException {
+    /**
+     * Set the header string of this packet. Used in the scanner
+     * @see EMWINScanner
+     * @param s
+     * @throws PacketException
+     * @throws ParseException
+     */
+    public void setHeader(String s) throws PacketException, ParseException {
         header = s;
         headerValid = v.checkHeader(this);
     }
 
     /**
      * Returns the packet header as a String without line terminators
-     * 
-     * @return 
+     *
+     * @return
      */
     public String getHeader() {
         return header;
@@ -76,11 +81,11 @@ public class EMWINPacket {
      * Sets the packet body as a byte array. Used by the scanner
      * @see EMWINScanner
      * @param b
-     * @throws EMWINPacketException
+     * @throws PacketException
      */
-    public void setBody(byte[] b) throws EMWINPacketException {
+    public void setBody(byte[] b) throws PacketException {
         if (header == null)
-            throw new EMWINPacketException("Packet Header not set");
+            throw new PacketException("Packet Header not set");
         body = b;
         cksum = v.calculateChecksum(this);
         checksumValid = (cksum == cs);
@@ -96,8 +101,8 @@ public class EMWINPacket {
     }
 
     /** Does the checksum match what was transmitted from the data source?
-     * 
-     * @return 
+     *
+     * @return
      */
     public boolean isChecksumValid() {
         return checksumValid;
@@ -106,7 +111,7 @@ public class EMWINPacket {
     /**
      * Is the packet header valid? This is determined by using a regular expression to extract the relevant parts of the transmitted header.
      * @see EMWINScanner
-     * 
+     *
      * @return
      */
     public boolean isHeaderValid() {

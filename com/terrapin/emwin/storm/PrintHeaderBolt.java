@@ -12,13 +12,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-import com.terrapin.emwin.EMWINPacket;
+import com.terrapin.emwin.object.Packet;
 
-public class EMWINPrintHeaderBolt extends BaseBasicBolt implements IBasicBolt {
+public class PrintHeaderBolt extends BaseBasicBolt implements IBasicBolt {
 
 	public final Logger log = LoggerFactory
-			.getLogger(EMWINPrintHeaderBolt.class);
-	private EMWINPacket p;
+			.getLogger(PrintHeaderBolt.class);
+	private Packet p;
 	private TopologyContext tc;
 
 	@Override
@@ -30,7 +30,7 @@ public class EMWINPrintHeaderBolt extends BaseBasicBolt implements IBasicBolt {
 
 	@Override
 	public void execute(Tuple tuple, BasicOutputCollector collector) {
-		p = (EMWINPacket) tuple.getValueByField("packet");
+		p = (Packet) tuple.getValueByField("packet");
 		if (p.isPacketValid())
 			log.info("(" + tc.getThisTaskId() + ") " + p.fn + ": " + p.pn
 					+ " of " + p.pt + " + " + p.fd);

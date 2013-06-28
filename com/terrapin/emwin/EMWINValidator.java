@@ -3,8 +3,10 @@ package com.terrapin.emwin;
 
 import java.util.regex.*;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.text.ParseException;
+
+import com.terrapin.emwin.object.Packet;
+import com.terrapin.emwin.object.PacketException;
 
 /**
  * This class checks the header information transmitted from the data source the packet header is in two formats:
@@ -15,7 +17,7 @@ import java.text.ParseException;
  * 
  * This class uses a regular expression to extract the information from the header to populate the fields in the EMWINPacket class
  * 
- * @see EMWINPacket
+ * @see Packet
 */
 
 public class EMWINValidator {
@@ -33,13 +35,13 @@ public class EMWINValidator {
 
     /**
      * This method reads the header from an EMWINPacket and validates it. If the regular expression matches, the EMWINPacket fields are populated
-     * @see EMWINPacket 
+     * @see Packet 
      * @param p Packet to be checked
      * @return true, if packet header is valid
-     * @throws EMWINPacketException
+     * @throws PacketException
      * @throws ParseException
      */
-    public boolean checkHeader(EMWINPacket p) throws EMWINPacketException, ParseException {
+    public boolean checkHeader(Packet p) throws PacketException, ParseException {
         m = hdr.matcher(p.getHeader());
         if (m.matches()) {
             p.headerValid(true);
@@ -56,11 +58,11 @@ public class EMWINValidator {
 
     /**
      * Calculate the packet body checksum. Used to verify the data in the packet as being valid. This value is compared to the checksum transmitted from the data source
-     * @see EMWINPacket
+     * @see Packet
      * @param p packet to calculate the checksum
      * @return the checksum value
      */
-    public long calculateChecksum(EMWINPacket p) {
+    public long calculateChecksum(Packet p) {
         long cksum = 0;
         byte[] b = p.getBody();
         for (int i = 0; i < b.length; i++)
