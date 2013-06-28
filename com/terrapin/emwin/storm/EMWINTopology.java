@@ -15,7 +15,7 @@ import com.google.common.io.Resources;
 public class EMWINTopology {
 
     public static final Logger log = LoggerFactory
-                                     .getLogger(EMWINTopology.class);
+            .getLogger(EMWINTopology.class);
 
     public static Properties loadProperties() {
         Properties props = new Properties();
@@ -36,7 +36,7 @@ public class EMWINTopology {
     }
 
     public static void main(String[] args) throws AlreadyAliveException,
-        InvalidTopologyException, InterruptedException {
+            InvalidTopologyException, InterruptedException {
 
         Properties props = EMWINTopology.loadProperties();
         Boolean remote = Boolean.parseBoolean(props.getProperty("remote"));
@@ -46,15 +46,15 @@ public class EMWINTopology {
 
         tb.setSpout("emwin_spout", new EMWINSpout(), 1);
 
-        tb.setBolt("emwin_sort", new SortBolt(), 2)
-        .shuffleGrouping("emwin_spout");
+        tb.setBolt("emwin_sort", new SortBolt(), 2).shuffleGrouping(
+                "emwin_spout");
 
         tb.setBolt("text_assemble", new AssembleTextPacketsBolt(), 1)
-        .shuffleGrouping("emwin_sort", "text");
+                .shuffleGrouping("emwin_sort", "text");
 
         tb.setBolt("text_parse", new ParseTextItem(), 2)
-        .shuffleGrouping("text_assemble", "text_item")
-        .shuffleGrouping("emwin_sort", "text_item");
+                .shuffleGrouping("text_assemble", "text_item")
+                .shuffleGrouping("emwin_sort", "text_item");
 
         Config conf = new Config();
         conf.setDebug(true);
@@ -62,11 +62,11 @@ public class EMWINTopology {
             log.info("Sleeping 1 seconds before submitting topology");
             Thread.sleep(1000);
             StormSubmitter.submitTopology("EMWIN topology", conf,
-                                          tb.createTopology());
+                    tb.createTopology());
         } else {
             LocalCluster cluster = new LocalCluster();
             cluster.submitTopology("EMWIN local topology", conf,
-                                   tb.createTopology());
+                    tb.createTopology());
         }
         log.info("Building Topology ... Done");
     }

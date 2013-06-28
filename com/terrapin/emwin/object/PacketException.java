@@ -1,5 +1,3 @@
-
-
 package com.terrapin.emwin.object;
 
 public class PacketException extends Exception {

@@ -65,7 +65,8 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
     public void execute(Tuple input, BasicOutputCollector collector) {
         // TODO Auto-generated method stub
         t = (TextItem) input.getValueByField("item");
-        log.debug(t.getPacketFileName()+"."+t.getPacketFileType()+" "+t.getPacketDate().getTime());
+        log.debug(t.getPacketFileName() + "." + t.getPacketFileType() + " "
+                + t.getPacketDate().getTime());
 
         Scanner scanner = new Scanner(t.getBody());
         while (scanner.hasNextLine()) {
@@ -75,10 +76,10 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
             if (line.indexOf("$$") != -1)
                 log.debug("New Text Message detected.");
 
-
             m = issuer.matcher(line);
             if (m.matches()) {
-                log.debug("mtype=" + m.group(1) + "  wid=" + m.group(2) + "  date=" + m.group(3));
+                log.debug("mtype=" + m.group(1) + "  wid=" + m.group(2)
+                        + "  date=" + m.group(3));
                 t.setMtype(m.group(1));
                 t.setWid(m.group(2));
             }
@@ -91,20 +92,21 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
             m = vtec.matcher(line);
             if (m.matches()) {
                 vtecItem v = new vtecItem();
-		log.info("VTEC Key = "+m.group(2));
+                log.debug("VTEC Key = " + m.group(2));
                 v.setVtecKey(m.group(2));
                 v.setAction(m.group(1));
                 v.setZones(zlist);
                 v.setBegin(m.group(3));
                 v.setEnd(m.group(4));
-                log.info("******* "+v.toString());
+                log.info("\n******* " + v.toString());
             }
 
             m = newState.matcher(line);
             if (m.matches()) {
                 zlist = new ArrayList();
                 boolean notSeenExpire = true;
-                log.debug("st="+m.group(1) + "  z="+m.group(2) + "  c="+m.group(3));
+                log.debug("st=" + m.group(1) + "  z=" + m.group(2) + "  c="
+                        + m.group(3));
                 String st = m.group(1);
                 String zcode = m.group(2);
 
@@ -115,7 +117,7 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
 
                 while (notSeenExpire) {
                     for (int x = 0; x < sscan.length; x++) {
-                        log.debug("  c="+sscan[x]);
+                        log.debug("  c=" + sscan[x]);
 
                         // range of zones == "053>061"
                         if (sscan[x].indexOf(">") != -1) {
@@ -128,7 +130,7 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
                         if (stateRE.matches()) {
                             st = stateRE.group(1);
                             zcode = stateRE.group(2);
-                            zlist.add(new Zone(st,zcode,stateRE.group(3)));
+                            zlist.add(new Zone(st, zcode, stateRE.group(3)));
                             continue;
                         }
 
@@ -154,7 +156,8 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
         }
     }
 
-    private void parseRangeToken(ArrayList<Zone> zlist, String t, String st, String zc) {
+    private void parseRangeToken(ArrayList<Zone> zlist, String t, String st,
+            String zc) {
         String[] s = t.split(">");
 
         Matcher stateRE = state.matcher(s[0]);

@@ -1,4 +1,3 @@
-
 package com.terrapin.emwin;
 
 import java.util.regex.*;
@@ -9,16 +8,19 @@ import com.terrapin.emwin.object.Packet;
 import com.terrapin.emwin.object.PacketException;
 
 /**
- * This class checks the header information transmitted from the data source the packet header is in two formats:
+ * This class checks the header information transmitted from the data source the
+ * packet header is in two formats:
+ * 
  * <pre>
  * /PFFWFSGFMO.ZIS/PN 3    /PT 3    /CS 100468/FD6/3/2013 6:56:45 PM    /DL0881
  * /PFG08HURUS.JPG/PN 53   /PT 75   /CS 125691/FD6/3/2013 12:13:01 PM
  * </pre>
  * 
- * This class uses a regular expression to extract the information from the header to populate the fields in the EMWINPacket class
+ * This class uses a regular expression to extract the information from the
+ * header to populate the fields in the EMWINPacket class
  * 
  * @see Packet
-*/
+ */
 
 public class EMWINValidator {
 
@@ -34,9 +36,12 @@ public class EMWINValidator {
     }
 
     /**
-     * This method reads the header from an EMWINPacket and validates it. If the regular expression matches, the EMWINPacket fields are populated
-     * @see Packet 
-     * @param p Packet to be checked
+     * This method reads the header from an EMWINPacket and validates it. If the
+     * regular expression matches, the EMWINPacket fields are populated
+     * 
+     * @see Packet
+     * @param p
+     *            Packet to be checked
      * @return true, if packet header is valid
      * @throws PacketException
      * @throws ParseException
@@ -57,9 +62,13 @@ public class EMWINValidator {
     }
 
     /**
-     * Calculate the packet body checksum. Used to verify the data in the packet as being valid. This value is compared to the checksum transmitted from the data source
+     * Calculate the packet body checksum. Used to verify the data in the packet
+     * as being valid. This value is compared to the checksum transmitted from
+     * the data source
+     * 
      * @see Packet
-     * @param p packet to calculate the checksum
+     * @param p
+     *            packet to calculate the checksum
      * @return the checksum value
      */
     public long calculateChecksum(Packet p) {

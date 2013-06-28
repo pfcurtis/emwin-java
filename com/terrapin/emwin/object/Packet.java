@@ -1,4 +1,3 @@
-
 package com.terrapin.emwin.object;
 
 import java.io.Serializable;
@@ -10,9 +9,9 @@ import com.terrapin.emwin.EMWINValidator;
 
 /**
  * This class represents a single packet received on the EMWIN data stream
- *
+ * 
  * @author pcurtis
- *
+ * 
  */
 public class Packet implements Serializable {
 
@@ -54,8 +53,10 @@ public class Packet implements Serializable {
     public Packet(EMWINValidator vin) {
         v = vin;
     }
+
     /**
      * Set the header string of this packet. Used in the scanner
+     * 
      * @see EMWINScanner
      * @param s
      * @throws PacketException
@@ -68,7 +69,7 @@ public class Packet implements Serializable {
 
     /**
      * Returns the packet header as a String without line terminators
-     *
+     * 
      * @return packet header
      */
     public String getHeader() {
@@ -77,6 +78,7 @@ public class Packet implements Serializable {
 
     /**
      * Sets the packet body as a byte array. Used by the scanner
+     * 
      * @see EMWINScanner
      * @param b
      * @throws PacketException
@@ -91,15 +93,16 @@ public class Packet implements Serializable {
 
     /**
      * Returns the packet body as a byte array
-     *
+     * 
      * @return packet body
      */
     public byte[] getBody() {
         return body;
     }
 
-    /** Does the checksum match what was transmitted from the data source?
-     *
+    /**
+     * Does the checksum match what was transmitted from the data source?
+     * 
      * @return true if packet body checksum matches
      */
     public boolean isChecksumValid() {
@@ -107,9 +110,11 @@ public class Packet implements Serializable {
     }
 
     /**
-     * Is the packet header valid? This is determined by using a regular expression to extract the relevant parts of the transmitted header.
+     * Is the packet header valid? This is determined by using a regular
+     * expression to extract the relevant parts of the transmitted header.
+     * 
      * @see EMWINScanner
-     *
+     * 
      * @return true if header was parsed correctly
      */
     public boolean isHeaderValid() {
@@ -118,6 +123,7 @@ public class Packet implements Serializable {
 
     /**
      * Set the header valid flag
+     * 
      * @param b
      */
     public void headerValid(boolean b) {
@@ -126,6 +132,7 @@ public class Packet implements Serializable {
 
     /**
      * Return the calculated checksum of the packet body
+     * 
      * @return checksum value
      */
     public long getCalculatedChecksum() {
@@ -133,7 +140,9 @@ public class Packet implements Serializable {
     }
 
     /**
-     * This method should be used to determined whether further processing of the packet should be performed
+     * This method should be used to determined whether further processing of
+     * the packet should be performed
+     * 
      * @return true if the packet is completely valid
      */
     public boolean isPacketValid() {

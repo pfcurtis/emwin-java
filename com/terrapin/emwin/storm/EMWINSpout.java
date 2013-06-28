@@ -39,12 +39,11 @@ public class EMWINSpout extends BaseRichSpout {
 
     private final Logger log = LoggerFactory.getLogger(EMWINSpout.class);
 
-    private BlockingQueue<Packet> queue = new ArrayBlockingQueue<Packet>(
-        100);
+    private BlockingQueue<Packet> queue = new ArrayBlockingQueue<Packet>(100);
 
     @Override
     public void open(Map conf, TopologyContext context,
-                     SpoutOutputCollector collector) {
+            SpoutOutputCollector collector) {
 
         _collector = collector;
         _rand = new Random();

@@ -16,8 +16,7 @@ import com.terrapin.emwin.object.Packet;
 
 public class PrintHeaderBolt extends BaseBasicBolt implements IBasicBolt {
 
-    public final Logger log = LoggerFactory
-                              .getLogger(PrintHeaderBolt.class);
+    public final Logger log = LoggerFactory.getLogger(PrintHeaderBolt.class);
     private Packet p;
     private TopologyContext tc;
 
@@ -33,10 +32,10 @@ public class PrintHeaderBolt extends BaseBasicBolt implements IBasicBolt {
         p = (Packet) tuple.getValueByField("packet");
         if (p.isPacketValid())
             log.info("(" + tc.getThisTaskId() + ") " + p.fn + ": " + p.pn
-                     + " of " + p.pt + " + " + p.fd);
+                    + " of " + p.pt + " + " + p.fd);
         else
             log.info("(" + tc.getThisTaskId() + ") " + p.fn + ": " + p.pn
-                     + " of " + p.pt + " - " + p.fd);
+                    + " of " + p.pt + " - " + p.fd);
     }
 
     @Override
