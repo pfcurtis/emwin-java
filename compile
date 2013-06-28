@@ -6,4 +6,4 @@ javac -g -cp .:${STORM_PATH}/storm-0.8.2.jar:\
 /usr/share/maven-repo/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar:\
 ${STORM_PATH}/lib/slf4j-api-1.5.8.jar:\
 ${STORM_PATH}/lib/slf4j-log4j12-1.5.8.jar \
- `find . -name "*.java"`
+ `find src/main/java -name "*.java"`
