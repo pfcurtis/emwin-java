@@ -37,8 +37,6 @@ public class Packet implements Serializable {
     public int pt;
     /**
      * The sequence number of this packet (part number)
-     *
-     * @see pt
      */
     public int pn;
     /**
@@ -71,7 +69,7 @@ public class Packet implements Serializable {
     /**
      * Returns the packet header as a String without line terminators
      *
-     * @return
+     * @return packet header
      */
     public String getHeader() {
         return header;
@@ -102,7 +100,7 @@ public class Packet implements Serializable {
 
     /** Does the checksum match what was transmitted from the data source?
      *
-     * @return
+     * @return true if packet body checksum matches
      */
     public boolean isChecksumValid() {
         return checksumValid;
@@ -112,23 +110,31 @@ public class Packet implements Serializable {
      * Is the packet header valid? This is determined by using a regular expression to extract the relevant parts of the transmitted header.
      * @see EMWINScanner
      *
-     * @return
+     * @return true if header was parsed correctly
      */
     public boolean isHeaderValid() {
         return headerValid;
     }
 
+    /**
+     * Set the header valid flag
+     * @param b
+     */
     public void headerValid(boolean b) {
         headerValid = b;
     }
 
+    /**
+     * Return the calculated checksum of the packet body
+     * @return checksum value
+     */
     public long getCalculatedChecksum() {
         return cksum;
     }
 
     /**
      * This method should be used to determined whether further processing of the packet should be performed
-     * @return
+     * @return true if the packet is completely valid
      */
     public boolean isPacketValid() {
         return (headerValid && checksumValid);

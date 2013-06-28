@@ -13,7 +13,7 @@ import java.io.UnsupportedEncodingException;
 public class TextItem extends Item implements Serializable {
 
     private static final long serialVersionUID = 3L;
-    public String body = null;
+    private String body = null;
     
     public TextItem() {
     	

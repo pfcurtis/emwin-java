@@ -52,7 +52,7 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
 		t = (TextItem) input.getValueByField("item");
 		log.info(t.getPacketFileName()+"."+t.getPacketFileType()+" "+t.getPacketDate().getTime());
 
-		Scanner scanner = new Scanner(t.body);
+		Scanner scanner = new Scanner(t.getBody());
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
 			// process the line
