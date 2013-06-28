@@ -4,6 +4,7 @@
 package com.terrapin.emwin.object;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ import java.util.Map;
  * @author pcurtis
  *
  */
-public class Item implements Serializable {
+public abstract class Item implements Serializable {
 
 	private Date packetDate = null;
 	private String packetFileName = null;
@@ -25,7 +26,7 @@ public class Item implements Serializable {
 	private String title = null;
 	private String mtype = null;
 	private String wid = null;
-	private Map<Zone, Zone> zones = null;
+	private ArrayList<Zone> zones = null;
 	
 	public Item() {
 		
@@ -146,14 +147,14 @@ public class Item implements Serializable {
 	/**
 	 * @return the zones
 	 */
-	public Map<Zone, Zone> getZones() {
+	public ArrayList<Zone> getZones() {
 		return zones;
 	}
 
 	/**
 	 * @param zones the zones to set
 	 */
-	public void setZones(Map<Zone, Zone> zones) {
+	public void setZones(ArrayList<Zone> zones) {
 		this.zones = zones;
 	}
 }
