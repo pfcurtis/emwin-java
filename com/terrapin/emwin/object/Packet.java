@@ -34,13 +34,13 @@ public class Packet implements Serializable {
     /**
      * The total number of packets of this filename/filetype
      */
-    public int pn;
+    public int pt;
     /**
      * The sequence number of this packet (part number)
      *
-     * @see pn
+     * @see pt
      */
-    public int pt;
+    public int pn;
     /**
      * The checksum of this packet as transmitted
      */

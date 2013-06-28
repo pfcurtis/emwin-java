@@ -18,12 +18,31 @@ public class TextItem extends Item implements Serializable {
     public TextItem() {
     	
     }
-    
+    /**
+     * Create a complete EMWIN Text item from a single packet. Used only when there is one part necessary for a complete item,
+     * @see Item
+     * @param p
+     * @throws UnsupportedEncodingException
+     */
     public TextItem(Packet p) throws UnsupportedEncodingException {
     	body = new String(p.getBody(), "ISO-8859-1");
-    	super.packetDate = p.fd;
-    	super.packetFileName = p.fn;
-    	super.packetFileType = p.ft;
+    	super.setPacketDate(p.fd);
+    	super.setPacketFileName(p.fn);
+    	super.setPacketFileType(p.ft);
     }
+
+	/**
+	 * @return the body
+	 */
+	public String getBody() {
+		return body;
+	}
+
+	/**
+	 * @param body the body to set
+	 */
+	public void setBody(String body) {
+		this.body = body;
+	}
     
 }

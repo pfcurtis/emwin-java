@@ -50,7 +50,7 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
 	public void execute(Tuple input, BasicOutputCollector collector) {
 		// TODO Auto-generated method stub
 		t = (TextItem) input.getValueByField("item");
-		log.info(t.packetFileName+"."+t.packetFileType+" "+t.packetDate.getTime());
+		log.info(t.getPacketFileName()+"."+t.getPacketFileType()+" "+t.getPacketDate().getTime());
 
 		Scanner scanner = new Scanner(t.body);
 		while (scanner.hasNextLine()) {
@@ -58,12 +58,12 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
 			// process the line
 			m = issuer.matcher(line);
 			if (m.matches()) {
-				log.info("mtype=" + m.group(1) + "  wid=" + m.group(2) + "  date=" + m.group(3));
+				log.debug("mtype=" + m.group(1) + "  wid=" + m.group(2) + "  date=" + m.group(3));
 			}
 			
 			m = nwsDate.matcher(line);
 			if (m.matches()) {
-				log.info(m.group(1) + m.group(2) + " " + m.group(3));
+				log.debug(m.group(1) + m.group(2) + " " + m.group(3));
 			}
 			
 			m = newState.matcher(line);
