@@ -157,4 +157,82 @@ public abstract class Item implements Serializable {
 	public void setZones(ArrayList<Zone> zones) {
 		this.zones = zones;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((expires == null) ? 0 : expires.hashCode());
+		result = prime * result + ((issue == null) ? 0 : issue.hashCode());
+		result = prime * result + ((mtype == null) ? 0 : mtype.hashCode());
+		result = prime * result
+				+ ((packetDate == null) ? 0 : packetDate.hashCode());
+		result = prime * result
+				+ ((packetFileName == null) ? 0 : packetFileName.hashCode());
+		result = prime * result
+				+ ((packetFileType == null) ? 0 : packetFileType.hashCode());
+		result = prime * result + ((title == null) ? 0 : title.hashCode());
+		result = prime * result + ((wid == null) ? 0 : wid.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Item other = (Item) obj;
+		if (expires == null) {
+			if (other.expires != null)
+				return false;
+		} else if (!expires.equals(other.expires))
+			return false;
+		if (issue == null) {
+			if (other.issue != null)
+				return false;
+		} else if (!issue.equals(other.issue))
+			return false;
+		if (mtype == null) {
+			if (other.mtype != null)
+				return false;
+		} else if (!mtype.equals(other.mtype))
+			return false;
+		if (packetDate == null) {
+			if (other.packetDate != null)
+				return false;
+		} else if (!packetDate.equals(other.packetDate))
+			return false;
+		if (packetFileName == null) {
+			if (other.packetFileName != null)
+				return false;
+		} else if (!packetFileName.equals(other.packetFileName))
+			return false;
+		if (packetFileType == null) {
+			if (other.packetFileType != null)
+				return false;
+		} else if (!packetFileType.equals(other.packetFileType))
+			return false;
+		if (title == null) {
+			if (other.title != null)
+				return false;
+		} else if (!title.equals(other.title))
+			return false;
+		if (wid == null) {
+			if (other.wid != null)
+				return false;
+		} else if (!wid.equals(other.wid))
+			return false;
+		return true;
+	}
+
+
 }
