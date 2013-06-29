@@ -159,8 +159,7 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
         collector.emit("text_item", new Values(t));
     }
 
-    private void parseRangeToken(ArrayList<Zone> zlist, String t, String st,
-            String zc) {
+    private void parseRangeToken(ArrayList<Zone> zlist, String t, String st, String zc) {
         String[] s = t.split(">");
 
         Matcher stateRE = state.matcher(s[0]);
