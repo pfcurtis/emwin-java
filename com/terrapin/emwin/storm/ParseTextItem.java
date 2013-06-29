@@ -21,6 +21,7 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseBasicBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
 
 public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
 
@@ -98,7 +99,8 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
                 v.setZones(zlist);
                 v.setBegin(m.group(3));
                 v.setEnd(m.group(4));
-                log.info("\n******* " + v.toString());
+                collector.emit("vtec_item", new Values(v));
+                log.debug("\n******* " + v.toString());
             }
 
             m = newState.matcher(line);
