@@ -150,12 +150,13 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
                         sscan = scanner.nextLine().split("-");
                 }
                 t.setZones(zlist);
-                Iterator itr = t.getZones().iterator();
+                Iterator<Zone> itr = t.getZones().iterator();
                 while (itr.hasNext())
                     log.debug(itr.next().toString());
             }
 
-        }
+        } // while scanner
+        collector.emit("text_item", new Values(t));
     }
 
     private void parseRangeToken(ArrayList<Zone> zlist, String t, String st,

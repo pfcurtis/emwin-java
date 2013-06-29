@@ -59,6 +59,10 @@ public class EMWINTopology {
         tb.setBolt("vtec_json", new vtecPostJSON(), 2)
                 .shuffleGrouping("text_parse", "vtec_item");
 
+        tb.setBolt("text_file_write", new WriteTextItemToFile(), 2)
+        .shuffleGrouping("text_parse", "text_item");
+
+
         Config conf = new Config();
         conf.setDebug(true);
         if (remote) {
