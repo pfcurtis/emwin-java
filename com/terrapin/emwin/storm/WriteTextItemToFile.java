@@ -27,8 +27,12 @@ import backtype.storm.tuple.Tuple;
  */
 public class WriteTextItemToFile extends BaseBasicBolt {
     private TextItem t;
-    public static final Logger log = LoggerFactory.getLogger(vtecPostJSON.class);
+    public static final Logger log = LoggerFactory.getLogger(WriteTextItemToFile.class);
     private Properties props;
+    
+    public WriteTextItemToFile() {
+        props = EMWINTopology.loadProperties();
+    }
 
     /* (non-Javadoc)
      * @see backtype.storm.topology.IBasicBolt#execute(backtype.storm.tuple.Tuple, backtype.storm.topology.BasicOutputCollector)
