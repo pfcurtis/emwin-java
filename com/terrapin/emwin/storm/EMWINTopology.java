@@ -55,17 +55,20 @@ public class EMWINTopology {
         tb.setBolt("text_parse", new ParseTextItem(), 2)
                 .shuffleGrouping("text_assemble", "text_item")
                 .shuffleGrouping("emwin_sort", "text_item");
+        
+        tb.setBolt("vtec_json", new vtecPostJSON(), 2)
+                .shuffleGrouping("text_parse", "vtec_item");
 
         Config conf = new Config();
         conf.setDebug(true);
         if (remote) {
             log.info("Sleeping 1 seconds before submitting topology");
             Thread.sleep(1000);
-            StormSubmitter.submitTopology("EMWIN topology", conf,
+            StormSubmitter.submitTopology("EMWIN", conf,
                     tb.createTopology());
         } else {
             LocalCluster cluster = new LocalCluster();
-            cluster.submitTopology("EMWIN local topology", conf,
+            cluster.submitTopology("EMWIN_local", conf,
                     tb.createTopology());
         }
         log.info("Building Topology ... Done");
