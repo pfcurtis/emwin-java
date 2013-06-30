@@ -117,7 +117,7 @@ public class EMWINSpout extends BaseRichSpout {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    return;
+                    stopSpout();
                 }
             }
         }, "EMWIN Stream Producer Thread").start();
@@ -136,6 +136,7 @@ public class EMWINSpout extends BaseRichSpout {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            stopSpout();
         }
     }
 

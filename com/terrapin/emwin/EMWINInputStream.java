@@ -36,7 +36,7 @@ public class EMWINInputStream {
      * @return single decoded byte
      * @throws java.io.IOException
      */
-    public int readUnsignedByte() throws java.io.IOException {
+    public int readUnsignedByte() throws java.io.IOException, java.net.SocketException {
         return (dis.readUnsignedByte() ^ 255);
     }
 
@@ -47,7 +47,7 @@ public class EMWINInputStream {
      *            byte array to be filled
      * @throws java.io.IOException
      */
-    public void readFully(byte b[]) throws java.io.IOException {
+    public void readFully(byte b[]) throws java.io.IOException, java.net.SocketException {
         dis.readFully(b);
         for (int i = 0; i < b.length; i++)
             b[i] = (byte) (b[i] ^ 255);
@@ -64,8 +64,7 @@ public class EMWINInputStream {
      *            an int specifying the number of bytes to read.
      * @throws java.io.IOException
      */
-    public void readFully(byte[] b, int off, int len)
-            throws java.io.IOException {
+    public void readFully(byte[] b, int off, int len) throws java.io.IOException, java.net.SocketException {
         dis.readFully(b, off, len);
         for (int i = 0; i < b.length; i++)
             b[i] = (byte) (b[i] ^ 255);
@@ -85,7 +84,7 @@ public class EMWINInputStream {
      * 
      * @throws java.io.IOException
      */
-    public void close() throws java.io.IOException {
+    public void close() throws java.io.IOException, java.net.SocketException {
         dis.close();
         i.close();
     }

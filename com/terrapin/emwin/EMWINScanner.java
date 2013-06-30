@@ -38,7 +38,7 @@ public class EMWINScanner {
      * @throws java.io.IOException
      */
     // This method blocks until a packet is available
-    public boolean hasNext() throws java.io.IOException {
+    public boolean hasNext() throws java.io.IOException, java.net.SocketException {
         scan();
         p = new Packet(v);
         try {
@@ -66,7 +66,7 @@ public class EMWINScanner {
      * We are scanning for two types of packets. A data packet starts with "/PF"
      * and the server list starts with "/ServerList"
      */
-    private void scan() throws java.io.IOException {
+    private void scan() throws java.io.IOException, java.net.SocketException {
 
         int l;
         int b;
