@@ -156,7 +156,8 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
                     }
 
                     if (notSeenExpire)
-                        sscan = scanner.nextLine().split("-");
+                        if (scanner.hasNextLine())
+                            sscan = scanner.nextLine().split("-");
                 }
                 t.setZones(zlist);
                 Iterator<Zone> itr = t.getZones().iterator();
