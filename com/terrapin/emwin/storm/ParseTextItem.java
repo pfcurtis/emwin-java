@@ -1,5 +1,7 @@
 package com.terrapin.emwin.storm;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Iterator;
@@ -26,6 +28,9 @@ import backtype.storm.tuple.Values;
 public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
 
     public final Logger log = LoggerFactory.getLogger(ParseTextItem.class);
+    
+    private SimpleDateFormat df = new SimpleDateFormat("ddHHmm");
+    
     private static final String ISSUER_REGEX = "(\\w{4}\\w*)\\s+([B|R|N|T|P|K|C]\\w{3})\\s+(\\d{6})";
     private static final String DATE_REGEX = "(\\d{1,2})(\\d{2}) ([A|P]M) ([A-Z][A-Z][A-Z]) [A-Z][A-Z][A-Z] ([A-Z][A-Z][A-Z]) ([0-9]+) ([0-9]+)";
     private static final String NEW_STATE = "([A-Z][A-Z])([C|Z])(\\d{3}|ALL)-(.*)";
@@ -94,13 +99,12 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
             if (m.matches()) {
                 vtecItem v = new vtecItem();
                 log.debug("VTEC Key = " + m.group(2));
-                v.setVtecKey(m.group(2));
                 v.setAction(m.group(1));
-                v.setZones(zlist);
+                v.setVtecKey(m.group(2));
                 v.setBegin(m.group(3));
                 v.setEnd(m.group(4));
+                v.setZones(zlist);
                 collector.emit("vtec_item", new Values(v));
-                log.debug("\n******* " + v.toString());
             }
 
             m = newState.matcher(line);
@@ -140,6 +144,11 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
                         Matcher expireRE = expires.matcher(sscan[x]);
                         if (expireRE.matches()) {
                             notSeenExpire = false;
+                            try {
+                                t.setExpires(df.parse(expireRE.group(1)));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
                             continue;
                         }
 

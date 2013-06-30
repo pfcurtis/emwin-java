@@ -28,6 +28,8 @@ import com.terrapin.emwin.util.VTEC;
  */
 public class vtecItem implements Serializable {
 
+    private static final long serialVersionUID = 2L;
+
     private ArrayList<Zone> zones = null;
     private String action = null;
     private String phenonema = null;
@@ -40,6 +42,10 @@ public class vtecItem implements Serializable {
     private Date begin = null;
     private Date end = null;
     private static SimpleDateFormat df = new SimpleDateFormat("yyMMdd'T'HHmmX");
+    
+    private String actionDescription = null;
+    private String phenonemaDescription = null;
+    private String significanceDescription = null;
 
     /**
 	 * 
@@ -147,6 +153,7 @@ public class vtecItem implements Serializable {
      */
     public void setAction(String action) {
         this.action = action;
+        this.actionDescription = VTEC.action.get(this.action);
     }
 
     /**
@@ -162,6 +169,8 @@ public class vtecItem implements Serializable {
      */
     public void setPhenonema(String phenonema) {
         this.phenonema = phenonema;
+        this.phenonemaDescription = VTEC.phenomena.get(this.phenonema);
+        
     }
 
     /**
@@ -177,8 +186,12 @@ public class vtecItem implements Serializable {
      */
     public void setSignificance(String significance) {
         this.significance = significance;
+        this.significanceDescription = VTEC.significance.get(this.significance);
     }
 
+    public String getDecription() {
+        return this.actionDescription + " " + this.phenonemaDescription + " " + this.significanceDescription;
+    }
     /*
      * (non-Javadoc)
      * 
@@ -191,8 +204,7 @@ public class vtecItem implements Serializable {
         while (itr.hasNext())
             zoneString.append("  " + itr.next().toString());
 
-        return VTEC.action.get(action) + " " + VTEC.phenomena.get(phenonema)
-                + " " + VTEC.significance.get(significance) + " until " + end
+        return this.getDecription() + " until " + end
                 + "\n" + zoneString + "\n";
     }
 
