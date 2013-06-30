@@ -55,6 +55,7 @@ public class EMWINSpout extends BaseRichSpout {
             emwinSocket = new Socket(host, port);
             out = emwinSocket.getOutputStream();
             in = new EMWINInputStream(emwinSocket.getInputStream());
+            log.info("connected to '" + host +":"+port+"'");
         } catch (UnknownHostException e) {
             System.err.println("Don't know about host '" + host + "'");
             System.exit(1);
@@ -102,6 +103,7 @@ public class EMWINSpout extends BaseRichSpout {
 
         _collector = collector;
         _rand = new Random();
+        startSpout();
     }
 
     private void producer() {
