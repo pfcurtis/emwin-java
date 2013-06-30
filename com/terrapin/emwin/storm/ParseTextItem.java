@@ -179,12 +179,16 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
             s[0] = stateRE.group(3);
         }
 
-        int start = Integer.valueOf(s[0]).intValue();
-        int end = Integer.valueOf(s[1]).intValue();
+        try {
+            int start = Integer.valueOf(s[0]).intValue();
+            int end = Integer.valueOf(s[1]).intValue();
 
-        for (int x = start; x <= end; x++) {
-            Zone z = new Zone(st, zc, Integer.toString(x));
-            zlist.add(z);
+            for (int x = start; x <= end; x++) {
+                Zone z = new Zone(st, zc, Integer.toString(x));
+                zlist.add(z);
+            }
+        } catch (java.lang.NumberFormatException e) {
+            e.printStackTrace();
         }
     }
 
