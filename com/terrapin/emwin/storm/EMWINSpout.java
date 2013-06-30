@@ -36,18 +36,16 @@ public class EMWINSpout extends BaseRichSpout {
     private OutputStream out = null;
     private EMWINInputStream in = null;
     private Random _rand;
-
+    private Properties props;
+    private Timer t = null;
+    private volatile boolean stopProducer = false;
+    
     private final Logger log = LoggerFactory.getLogger(EMWINSpout.class);
 
     private BlockingQueue<Packet> queue = new ArrayBlockingQueue<Packet>(100);
 
-    @Override
-    public void open(Map conf, TopologyContext context,
-            SpoutOutputCollector collector) {
-
-        _collector = collector;
-        _rand = new Random();
-        Properties props = EMWINTopology.loadProperties();
+    private void startSpout() {
+        props = EMWINTopology.loadProperties();
 
         String host = props.getProperty("emwin.host");
         int port = Integer.parseInt(props.getProperty("emwin.port"));
@@ -65,13 +63,45 @@ public class EMWINSpout extends BaseRichSpout {
             System.exit(1);
         }
 
-        Timer t = new Timer("Heartbeat", true);
+        t = new Timer("Heartbeat", true);
         t.schedule(new EMWINHeartbeat(out), 0, 300000);
 
         v = new EMWINValidator();
         sc = new EMWINScanner(in, v);
         log.info("Starting producer()");
         producer();
+        
+    }
+    
+    private void stopSpout() {
+        log.error("Stopping Spout: Socket I/O exception raised.");
+        stopProducer = true;
+        try {
+            out.close();
+            in.close();
+            emwinSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        t.cancel();
+        t.purge();
+        
+        log.error("Sleeping 3 seconds before restarting socket stream.");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        stopProducer = false;
+        this.startSpout();
+    }
+    
+    @Override
+    public void open(Map conf, TopologyContext context,
+            SpoutOutputCollector collector) {
+
+        _collector = collector;
+        _rand = new Random();
     }
 
     private void producer() {
@@ -79,12 +109,13 @@ public class EMWINSpout extends BaseRichSpout {
             @Override
             public void run() {
                 try {
-                    while (sc.hasNext()) {
+                    while (sc.hasNext() && !stopProducer) {
                         Packet p = sc.next();
                         queue.put(p);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                    return;
                 }
             }
         }, "EMWIN Stream Producer Thread").start();
