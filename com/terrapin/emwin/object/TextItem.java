@@ -21,7 +21,8 @@ public class TextItem extends Item implements Serializable {
      * Create a complete EMWIN Text item from a single packet. Used only when
      * there is one part a single Packet) necessary for a complete item,
      * 
-     * @see Item, TextItem
+     * @see Item
+     * @see TextItem
      * @param p the single Packet making up the text item
      * @throws UnsupportedEncodingException
      */

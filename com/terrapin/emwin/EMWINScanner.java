@@ -19,8 +19,8 @@ public class EMWINScanner {
     private byte[] body;
     private Packet p;
 
-    private EMWINScanner() {
-        
+    @SuppressWarnings("unused")
+    private EMWINScanner() { 
     }
 
     /**
@@ -74,7 +74,6 @@ public class EMWINScanner {
      */
     private void scan() throws java.io.IOException, java.net.SocketException {
 
-        int l;
         int b;
         byte[] hdr = new byte[75];
         char[] hdr_c = new char[75];
