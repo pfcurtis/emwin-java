@@ -17,7 +17,7 @@ public class Packet implements Serializable {
 
     private String header = null;
     private byte[] body = null;
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
     /**
      * The eight character file name
      */
@@ -58,7 +58,7 @@ public class Packet implements Serializable {
      * Set the header string of this packet. Used in the scanner
      * 
      * @see EMWINScanner
-     * @param s
+     * @param s The header string from the received data stream
      * @throws PacketException
      * @throws ParseException
      */
@@ -70,7 +70,7 @@ public class Packet implements Serializable {
     /**
      * Returns the packet header as a String without line terminators
      * 
-     * @return packet header
+     * @return packet header string
      */
     public String getHeader() {
         return header;
@@ -80,7 +80,7 @@ public class Packet implements Serializable {
      * Sets the packet body as a byte array. Used by the scanner
      * 
      * @see EMWINScanner
-     * @param b
+     * @param b The bytes received in the data portion of the stream 
      * @throws PacketException
      */
     public void setBody(byte[] b) throws PacketException {
@@ -94,7 +94,7 @@ public class Packet implements Serializable {
     /**
      * Returns the packet body as a byte array
      * 
-     * @return packet body
+     * @return packet body as a byte array
      */
     public byte[] getBody() {
         return body;
@@ -124,7 +124,8 @@ public class Packet implements Serializable {
     /**
      * Set the header valid flag
      * 
-     * @param b
+     * @param b true if the packet header string validates (using regex)
+     * @see EMWINValidator
      */
     public void headerValid(boolean b) {
         headerValid = b;

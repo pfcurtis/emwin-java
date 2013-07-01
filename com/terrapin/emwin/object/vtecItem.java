@@ -23,6 +23,8 @@ import com.terrapin.emwin.util.VTEC;
  * It is documented here:
  * http://www.nws.noaa.gov/os/vtec/pdfs/VTEC_explanation6.pdf
  * 
+ * A human readable description of the warning/watch/event is provided
+ * 
  * @author pcurtis
  * 
  */

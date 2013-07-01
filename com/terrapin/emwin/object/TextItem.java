@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
 /**
- * This class represents a text item received.
+ * This class represents a text item received. A text item will consist of one or more Packets
  * 
  * @author pcurtis
  * 
@@ -15,15 +15,14 @@ public class TextItem extends Item implements Serializable {
     private String body = null;
 
     public TextItem() {
-
     }
 
     /**
      * Create a complete EMWIN Text item from a single packet. Used only when
-     * there is one part necessary for a complete item,
+     * there is one part a single Packet) necessary for a complete item,
      * 
-     * @see Item
-     * @param p
+     * @see Item, TextItem
+     * @param p the single Packet making up the text item
      * @throws UnsupportedEncodingException
      */
     public TextItem(Packet p) throws UnsupportedEncodingException {

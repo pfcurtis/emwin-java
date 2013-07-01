@@ -3,7 +3,13 @@ package com.terrapin.emwin.object;
 import java.io.Serializable;
 
 /**
- * This class represents a single county or zone that an EMWIN item affects
+ * This class represents a single county or zone that an EMWIN item affects.
+ * 
+ * If the code string is 'C', the Zone object indicates a county code (FIPS)
+ * If the code string is 'Z', the Zone object represents an National Weather Service zone
+ * 
+ * The two are related, but not interchangeable. A county can have multiple zones, however, a zone does not cross
+ * county boundaries.
  * 
  * @author pcurtis
  * 
