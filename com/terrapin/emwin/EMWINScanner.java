@@ -1,6 +1,15 @@
 package com.terrapin.emwin;
 
 import com.terrapin.emwin.object.Packet;
+/**
+ * This class examines the incoming byte stream for specific character
+ * sequences. The sequences signal the start of the two types of packets
+ * received: data packets and server lists. Data packets always begin with
+ * "/PF" while server list packets begin with "/ServerList/"
+ * <p>
+ * Once the data packet start is detected, an EMWINPacket is constructed and
+ * validated
+ */
 
 public class EMWINScanner {
 
@@ -10,14 +19,11 @@ public class EMWINScanner {
     private byte[] body;
     private Packet p;
 
+    private EMWINScanner() {
+        
+    }
+
     /**
-     * This class examines the incoming byte stream for specific character
-     * sequences. The sequences signal the start of the two types of packets
-     * received: data packets and server lists. Data packets always begin with
-     * "/PF" while server list packets begin with "/ServerList/"
-     * <p>
-     * Once the data packet start is detected, an EMWINPacket is constructed and
-     * validated
      * 
      * @param in
      *            the raw data stream

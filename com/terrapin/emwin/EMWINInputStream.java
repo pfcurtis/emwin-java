@@ -4,7 +4,7 @@ import java.io.*;
 
 /**
  * This class encapsulates the EMWIN data stream. For reasons unknown, the data
- * in the stream is XOR'd with 255 to provide some sort of "encrytption". This
+ * in the stream is XOR'd with 255 to provide some sort of "encryption". This
  * was probably done by the original data stream software vendor to obscure the
  * data.
  * <p>
