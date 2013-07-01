@@ -17,7 +17,7 @@ import com.terrapin.emwin.object.PacketException;
  * </pre>
  * 
  * This class uses a regular expression to extract the information from the
- * header to populate the fields in the EMWINPacket class
+ * header to populate the fields in the Packet class
  * 
  * @see Packet
  */
