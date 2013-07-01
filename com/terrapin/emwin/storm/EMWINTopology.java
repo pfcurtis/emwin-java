@@ -44,7 +44,7 @@ public class EMWINTopology {
 
         TopologyBuilder tb = new TopologyBuilder();
 
-        tb.setSpout("emwin_spout", new EMWINSpout(), 1);
+        tb.setSpout("emwin_spout", new EMWINSpout("emwin_spout"), 1);
 
         tb.setBolt("emwin_sort", new SortBolt(), 2).shuffleGrouping(
                 "emwin_spout");

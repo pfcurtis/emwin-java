@@ -14,6 +14,7 @@ import java.util.concurrent.BlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import backtype.storm.contrib.signals.spout.BaseSignalSpout;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -27,8 +28,16 @@ import com.terrapin.emwin.EMWINScanner;
 import com.terrapin.emwin.EMWINValidator;
 import com.terrapin.emwin.object.Packet;
 
-public class EMWINSpout extends BaseRichSpout {
+public class EMWINSpout extends BaseSignalSpout {
 
+    public EMWINSpout(String name) {
+        super(name);
+    }
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -1293760041316856250L;
     private SpoutOutputCollector _collector;
     private EMWINScanner sc;
     private EMWINValidator v;
@@ -151,5 +160,10 @@ public class EMWINSpout extends BaseRichSpout {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
         declarer.declare(new Fields("packet", "type"));
+    }
+
+    @Override
+    protected void onSignal(byte[] data) {
+        log.info("Received signal: " + new String(data));        
     }
 }
