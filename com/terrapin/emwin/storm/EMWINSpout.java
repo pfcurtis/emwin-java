@@ -29,11 +29,6 @@ import com.terrapin.emwin.EMWINValidator;
 import com.terrapin.emwin.object.Packet;
 
 public class EMWINSpout extends BaseSignalSpout {
-
-    public EMWINSpout(String name) {
-        super(name);
-    }
-
     /**
      * 
      */
@@ -52,6 +47,10 @@ public class EMWINSpout extends BaseSignalSpout {
     private final Logger log = LoggerFactory.getLogger(EMWINSpout.class);
 
     private BlockingQueue<Packet> queue = new ArrayBlockingQueue<Packet>(100);
+
+    public EMWINSpout(String name) {
+        super(name);
+    }
 
     private void startSpout() {
         props = EMWINTopology.loadProperties();
@@ -112,6 +111,8 @@ public class EMWINSpout extends BaseSignalSpout {
 
         _collector = collector;
         _rand = new Random();
+        super.open(conf, context, collector);
+
         startSpout();
     }
 
@@ -163,7 +164,7 @@ public class EMWINSpout extends BaseSignalSpout {
     }
 
     @Override
-    protected void onSignal(byte[] data) {
+    public void onSignal(byte[] data) {
         log.info("Received signal: " + new String(data));        
     }
 }
