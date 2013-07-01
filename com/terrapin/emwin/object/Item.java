@@ -19,6 +19,10 @@ import java.util.Map;
  */
 public abstract class Item implements Serializable {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 212950488596248977L;
     private Date packetDate = null;
     private String packetFileName = null;
     private String packetFileType = null;

@@ -109,7 +109,7 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
 
             m = newState.matcher(line);
             if (m.matches()) {
-                zlist = new ArrayList();
+                zlist = new ArrayList<Zone>();
                 boolean notSeenExpire = true;
                 log.debug("st=" + m.group(1) + "  z=" + m.group(2) + "  c="
                         + m.group(3));

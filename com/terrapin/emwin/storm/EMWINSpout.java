@@ -105,6 +105,7 @@ public class EMWINSpout extends BaseSignalSpout {
         this.startSpout();
     }
     
+    @SuppressWarnings("rawtypes")
     @Override
     public void open(Map conf, TopologyContext context,
             SpoutOutputCollector collector) {

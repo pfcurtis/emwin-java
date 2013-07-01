@@ -38,7 +38,7 @@ public class AssembleTextPacketsBolt extends BaseBasicBolt {
 
     public final Logger log = LoggerFactory
             .getLogger(AssembleTextPacketsBolt.class);
-    private HashMap<String, StringBuffer> pkts = new HashMap();
+    private HashMap<String, StringBuffer> pkts = new HashMap<String, StringBuffer>();
     private Packet p;
 
     @Override
