@@ -30,6 +30,7 @@ public class EMWINScanner {
     private StringBuffer header;
     private byte[] body;
     private Packet p;
+    
 
     @SuppressWarnings("unused")
     private EMWINScanner() { 
@@ -99,12 +100,13 @@ public class EMWINScanner {
                 continue;
             }
 
-            if (b == 'P') {
+            if ((b == 'P') || (b == 'S')) {
                 b = i.readUnsignedByte();
             } else {
                 continue;
             }
 
+            // Data packet
             if (b == 'F') {
                 header = new StringBuffer("/PF");
                 i.readFully(hdr);
@@ -125,8 +127,9 @@ public class EMWINScanner {
                 body = new byte[p.dl];
                 i.readFully(body);
                 
-                if (p.dl != 1024) { //
-                    // Decompress the bytes
+                if (p.dl != 1024) { 
+                    // EMWIN version 2 protocol will send less than the 1024 bytes. If this is true, the packet body needs
+                    // to be decompressed 
                     Inflater decompresser = new Inflater();
                     decompresser.setInput(body, 0, p.dl);
                     byte[] result = new byte[1024];
@@ -134,13 +137,29 @@ public class EMWINScanner {
                         int resultLength = decompresser.inflate(result);
                         body = Arrays.copyOfRange(result, 0, resultLength);
                     } catch (DataFormatException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                     decompresser.end();
                     
                 }
                 break;
+            }
+            
+            if (b == 'e') {
+                StringBuffer serverList = new StringBuffer("/Se");
+                int pkt;
+                char sl_c = 0;
+                char last = 0;
+                while (true) {
+                    pkt = i.readUnsignedByte();
+                    sl_c = (char)pkt;
+                    if ((last == '|') && (sl_c == '\\'))
+                            break;
+                    serverList.append(sl_c);
+                    last = sl_c;
+                }
+                
+                log.info("/ServerList/ = "+serverList);
             } else {
                 continue;
             }
