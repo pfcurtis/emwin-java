@@ -64,7 +64,7 @@ public class EMWINTopology {
 
 
         Config conf = new Config();
-        conf.setDebug(true);
+        conf.setDebug(false);
         if (remote) {
             log.info("Sleeping 1 seconds before submitting topology");
             Thread.sleep(1000);

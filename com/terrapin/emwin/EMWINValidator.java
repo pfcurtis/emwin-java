@@ -4,8 +4,13 @@ import java.util.regex.*;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.esotericsoftware.minlog.Log;
 import com.terrapin.emwin.object.Packet;
 import com.terrapin.emwin.object.PacketException;
+import com.terrapin.emwin.storm.EMWINSpout;
 
 /**
  * This class checks the header information transmitted from the data source the
@@ -24,8 +29,12 @@ import com.terrapin.emwin.object.PacketException;
 
 public class EMWINValidator {
 
+    private final Logger log = LoggerFactory.getLogger(EMWINValidator.class);
+    
     private static final String HEADER_REGEX = "/PF([A-Z0-9]{8})\\.([A-Z0-9]{3})/PN\\s+(\\d+)\\s+/PT\\s+(\\d+)\\s+/CS (\\d+).*/FD(\\d+\\/\\d+\\/\\d{4} \\d+:\\d+:\\d+ [A|P]M).*";
+    private static final String V2_HEADER_REGEX = "/PF([A-Z0-9]{8})\\.([A-Z0-9]{3})/PN\\s+(\\d+)\\s+/PT\\s+(\\d+)\\s+/CS (\\d+).*/FD(\\d+\\/\\d+\\/\\d{4} \\d+:\\d+:\\d+ [A|P]M)\\s+/DL(\\d{4}).*";
     private Pattern hdr;
+    private Pattern v2_hdr;
     private Matcher m;
 
     private static final String DATE_FORMAT = "MM/dd/yyyy hh:mm:ss a z";
@@ -33,6 +42,7 @@ public class EMWINValidator {
 
     public EMWINValidator() {
         hdr = Pattern.compile(HEADER_REGEX);
+        v2_hdr = Pattern.compile(V2_HEADER_REGEX);
     }
 
     /**
@@ -47,6 +57,20 @@ public class EMWINValidator {
      * @throws ParseException
      */
     public boolean checkHeader(Packet p) throws PacketException, ParseException {
+        // First test the version 2 header
+        m = v2_hdr.matcher(p.getHeader());
+        if (m.matches()) {
+            p.headerValid(true);            
+            p.fn = m.group(1);
+            p.ft = m.group(2);
+            p.pn = Integer.parseInt(m.group(3));
+            p.pt = Integer.parseInt(m.group(4));
+            p.cs = Integer.parseInt(m.group(5));
+            p.fd = df.parse(m.group(6) + " GMT");
+            p.dl = Integer.parseInt(m.group(7));
+            return true;
+        }
+        
         m = hdr.matcher(p.getHeader());
         if (m.matches()) {
             p.headerValid(true);
@@ -56,9 +80,10 @@ public class EMWINValidator {
             p.pt = Integer.parseInt(m.group(4));
             p.cs = Integer.parseInt(m.group(5));
             p.fd = df.parse(m.group(6) + " GMT");
+            p.dl = 1024;
             return true;
-        } else
-            return false;
+        }
+        return false;
     }
 
     /**

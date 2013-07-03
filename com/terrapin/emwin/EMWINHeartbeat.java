@@ -14,7 +14,7 @@ import java.io.*;
  */
 public class EMWINHeartbeat extends TimerTask {
 
-    private static final String HeartbeatMessage = "ByteBlast Client|admin@weather.terrapin.com|V1";
+    private static final String HeartbeatMessage = "ByteBlast Client|admin@weather.terrapin.com|V2";
     private byte[] b;
     private OutputStream out;
 

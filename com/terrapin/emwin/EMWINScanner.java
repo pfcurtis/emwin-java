@@ -1,6 +1,16 @@
 package com.terrapin.emwin;
 
+import java.text.ParseException;
+import java.util.Arrays;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.terrapin.emwin.object.Packet;
+import com.terrapin.emwin.object.PacketException;
+import com.terrapin.emwin.storm.EMWINSpout;
 /**
  * This class examines the incoming byte stream for specific character
  * sequences. The sequences signal the start of the two types of packets
@@ -12,6 +22,8 @@ import com.terrapin.emwin.object.Packet;
  */
 
 public class EMWINScanner {
+
+    private final Logger log = LoggerFactory.getLogger(EMWINScanner.class);
 
     private EMWINInputStream i;
     private EMWINValidator v;
@@ -45,10 +57,9 @@ public class EMWINScanner {
      */
     // This method blocks until a packet is available
     public boolean hasNext() throws java.io.IOException, java.net.SocketException {
-        scan();
         p = new Packet(v);
+        scan();
         try {
-            p.setHeader(header.toString());
             p.setBody(body);
         } catch (Exception e) {
             e.printStackTrace();
@@ -100,11 +111,35 @@ public class EMWINScanner {
                 for (int i = 0; i < hdr.length; i++)
                     hdr_c[i] = (char) hdr[i];
                 header.append(hdr_c);
+                // In order to read the correct number of bytes, we need to check the header of the packet
+                try {
+                    p.setHeader(header.toString());
+                    log.debug("Header: "+p.fn+"."+p.ft+"   DL="+p.dl);
+                } catch (Exception e) {
+                    break;
+                }
+                
                 // Remove the CR + NL characters
                 i.getDataInputStream().read();
                 i.getDataInputStream().read();
-                body = new byte[1024];
+                body = new byte[p.dl];
                 i.readFully(body);
+                
+                if (p.dl != 1024) { //
+                    // Decompress the bytes
+                    Inflater decompresser = new Inflater();
+                    decompresser.setInput(body, 0, p.dl);
+                    byte[] result = new byte[1024];
+                    try {
+                        int resultLength = decompresser.inflate(result);
+                        body = Arrays.copyOfRange(result, 0, resultLength);
+                    } catch (DataFormatException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    decompresser.end();
+                    
+                }
                 break;
             } else {
                 continue;

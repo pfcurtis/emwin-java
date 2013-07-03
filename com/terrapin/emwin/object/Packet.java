@@ -17,7 +17,7 @@ public class Packet implements Serializable {
 
     private String header = null;
     private byte[] body = null;
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 5L;
     /**
      * The eight character file name
      */
@@ -42,6 +42,12 @@ public class Packet implements Serializable {
      * The checksum of this packet as transmitted
      */
     public int cs;
+    
+    /**
+     * The data size. The number of bytes transmitted according to the version 2 header
+     */
+    public int dl = 0;
+    
     private boolean headerValid = false;
     private boolean checksumValid = false;
     private long cksum = 0;
