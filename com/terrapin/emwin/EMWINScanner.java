@@ -26,6 +26,7 @@ public class EMWINScanner {
     private final Logger log = LoggerFactory.getLogger(EMWINScanner.class);
 
     private EMWINInputStream i;
+    private EMWINConnection con;
     private EMWINValidator v;
     private StringBuffer header;
     private byte[] body;
@@ -38,16 +39,22 @@ public class EMWINScanner {
 
     /**
      * 
-     * @param in
-     *            the raw data stream
      * @param vin
      *            an instance of the validator class
      */
-    public EMWINScanner(EMWINInputStream in, EMWINValidator vin) {
-        i = in;
+    public EMWINScanner(EMWINValidator vin, EMWINConnection c) {
         v = vin;
+        con = c;
+        i = con.getIn();
     }
-
+    
+    /**
+     * This method set the "current" input stream
+     * 
+     */
+    public void setIn() {
+        i = con.getIn();
+    }
     /**
      * This method blocks until a complete packet has been received. When a full
      * packet is available, the method returns. This method would be used as the
@@ -146,7 +153,7 @@ public class EMWINScanner {
             }
             
             if (b == 'e') {
-                StringBuffer serverList = new StringBuffer("/Se");
+                StringBuffer serverList = new StringBuffer("Se");
                 int pkt;
                 char sl_c = 0;
                 char last = 0;
@@ -158,7 +165,7 @@ public class EMWINScanner {
                     serverList.append(sl_c);
                     last = sl_c;
                 }
-                
+                con.setServerList(serverList.toString());
                 log.info("/ServerList/ = "+serverList);
             } else {
                 continue;

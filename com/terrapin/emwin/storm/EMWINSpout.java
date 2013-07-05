@@ -22,6 +22,7 @@ import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 
+import com.terrapin.emwin.EMWINConnection;
 import com.terrapin.emwin.EMWINHeartbeat;
 import com.terrapin.emwin.EMWINInputStream;
 import com.terrapin.emwin.EMWINScanner;
@@ -36,13 +37,11 @@ public class EMWINSpout extends BaseSignalSpout {
     private SpoutOutputCollector _collector;
     private EMWINScanner sc;
     private EMWINValidator v;
-    private Socket emwinSocket = null;
-    private OutputStream out = null;
-    private EMWINInputStream in = null;
+    private EMWINConnection con = new EMWINConnection();
+    
     private Random _rand;
     private Properties props;
     private Timer t = null;
-    private volatile boolean stopProducer = false;
     
     private final Logger log = LoggerFactory.getLogger(EMWINSpout.class);
 
@@ -53,47 +52,17 @@ public class EMWINSpout extends BaseSignalSpout {
     }
 
     private void startSpout() {
-        props = EMWINTopology.loadProperties();
 
-        String host = props.getProperty("emwin.host");
-        int port = Integer.parseInt(props.getProperty("emwin.port"));
-
-        try {
-            log.info("connecting");
-            emwinSocket = new Socket(host, port);
-            out = emwinSocket.getOutputStream();
-            in = new EMWINInputStream(emwinSocket.getInputStream());
-            log.info("connected to '" + host +":"+port+"'");
-        } catch (UnknownHostException e) {
-            System.err.println("Don't know about host '" + host + "'");
-            System.exit(1);
-        } catch (IOException e) {
-            System.err.println("Couldn't get I/O for the connection");
-            System.exit(1);
-        }
-
-        t = new Timer("Heartbeat", true);
-        t.schedule(new EMWINHeartbeat(out), 0, 300000);
-
-        v = new EMWINValidator();
-        sc = new EMWINScanner(in, v);
+        con.connect();
         log.info("Starting producer()");
-        producer();
+        this.packetProducer();
         
     }
     
     private void stopSpout() {
         log.error("Stopping Spout: Socket I/O exception raised.");
-        stopProducer = true;
-        try {
-            out.close();
-            in.close();
-            emwinSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        t.cancel();
-        t.purge();
+        con.close();
+
         
         log.error("Sleeping 3 seconds before restarting socket stream.");
         try {
@@ -101,7 +70,6 @@ public class EMWINSpout extends BaseSignalSpout {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        stopProducer = false;
         this.startSpout();
     }
     
@@ -112,22 +80,26 @@ public class EMWINSpout extends BaseSignalSpout {
 
         _collector = collector;
         _rand = new Random();
+        v = new EMWINValidator();
+        sc = new EMWINScanner(v, con);
+
         super.open(conf, context, collector);
 
-        startSpout();
+        this.startSpout();
     }
 
-    private void producer() {
+    private void packetProducer() {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                sc.setIn();
                 try {
-                    while (sc.hasNext() && !stopProducer) {
+                    while (sc.hasNext()) {
                         Packet p = sc.next();
                         queue.put(p);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error("producer() stopped.", e);
                     stopSpout();
                 }
             }
@@ -166,6 +138,13 @@ public class EMWINSpout extends BaseSignalSpout {
 
     @Override
     public void onSignal(byte[] data) {
-        log.info("Received signal: " + new String(data));        
+        String s = new String(data);
+        log.info("Received signal: " + s);
+        switch (s) {
+            case "STOP":
+                con.close();
+                break;
+        }
+            
     }
 }
