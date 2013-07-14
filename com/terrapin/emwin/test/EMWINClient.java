@@ -60,7 +60,7 @@ public class EMWINClient {
         t.schedule(new EMWINHeartbeat(out), 0, 300000);
 
         EMWINValidator v = new EMWINValidator();
-        EMWINScanner sc = new EMWINScanner(in, v);
+//      EMWINScanner sc = new EMWINScanner(in, v);
 
         while (sc.hasNext()) {
             Packet p = sc.next();
