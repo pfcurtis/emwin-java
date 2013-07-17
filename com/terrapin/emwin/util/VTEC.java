@@ -63,7 +63,7 @@ public final class VTEC {
             put("HF", "Hurricane Force Wind");
             put("HI", "Inland Hurricane");
             put("HS", "Heavy Snow");
-            put("HT", "Heat ");
+            put("HT", "Heat");
             put("HU", "Hurricane");
             put("HW", "High Wind");
             put("HY", "Hydrologic");
