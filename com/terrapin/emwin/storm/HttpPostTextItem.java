@@ -6,6 +6,7 @@ package com.terrapin.emwin.storm;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -28,6 +29,8 @@ import backtype.storm.tuple.Tuple;
  */
 public class HttpPostTextItem extends BaseRichBolt {
     public static final Logger log = LoggerFactory.getLogger(HttpPostTextItem.class);
+    private Properties props;
+
 
     /* (non-Javadoc)
      * @see backtype.storm.task.IBolt#prepare(java.util.Map, backtype.storm.task.TopologyContext, backtype.storm.task.OutputCollector)
@@ -35,7 +38,7 @@ public class HttpPostTextItem extends BaseRichBolt {
     @Override
     public void prepare(Map stormConf, TopologyContext context,
             OutputCollector collector) {
- 
+        props = EMWINTopology.loadProperties();
     }
 
     /* (non-Javadoc)

@@ -38,7 +38,7 @@ public class EMWINClient {
         Socket emwinSocket = null;
         OutputStream out = null;
         EMWINInputStream in = null;
-
+/*
         Properties props = loadProperties();
 
         String host = props.getProperty("emwin.host");
@@ -60,7 +60,7 @@ public class EMWINClient {
         t.schedule(new EMWINHeartbeat(out), 0, 300000);
 
         EMWINValidator v = new EMWINValidator();
-//      EMWINScanner sc = new EMWINScanner(in, v);
+        EMWINScanner sc = new EMWINScanner(in, v);
 
         while (sc.hasNext()) {
             Packet p = sc.next();
@@ -75,5 +75,6 @@ public class EMWINClient {
         out.close();
         in.close();
         emwinSocket.close();
+*/
     }
 }

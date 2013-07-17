@@ -44,7 +44,7 @@ public class WriteTextItemToFile extends BaseBasicBolt {
         try {
             File file = new File(props.getProperty("json.directory") + "/" + t.getPacketFileName() +"." + t.getPacketFileType());
 
-            // if file doesnt exists, then create it
+            // if file does not exist, then create it
             if (!file.exists()) {
                 file.createNewFile();
             }
