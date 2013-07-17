@@ -71,7 +71,8 @@ public class EMWINTopology {
             .shuffleGrouping("text_parse", "text_item");
         } else {
             tb.setBolt("file_write", new WriteItemToFile(), 2)
-            .shuffleGrouping("text_parse", "text_item");
+            .shuffleGrouping("text_parse", "text_item")
+            .shuffleGrouping("decompress_zis", "text_item");
         }
 
         Config conf = new Config();

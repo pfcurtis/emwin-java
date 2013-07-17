@@ -3,11 +3,17 @@
  */
 package com.terrapin.emwin.storm;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.zip.DataFormatException;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
+import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,26 +40,20 @@ public class DecompressZisTextItem extends BaseBasicBolt {
     @Override
     public void execute(Tuple input, BasicOutputCollector collector) {
         ZisItem z = (ZisItem) input.getValueByField("item");
-        byte[] result = new byte[z.getBody().length * 10];
-        Inflater decompresser = new Inflater();
-        decompresser.setInput(z.getBody(), 0, z.getBody().length);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
         log.info("z.getBody().length = " + z.getBody().length);
         try {
-            int resultLength = decompresser.inflate(result);
-            byte[] body = new byte[resultLength];
-            body = Arrays.copyOfRange(result, 0, resultLength);
+            IOUtils.copy(new ZipInputStream(new ByteArrayInputStream(z.getBody())), out);
             TextItem t = new TextItem();
             t.setPacketFileName(z.getPacketFileName());
             t.setPacketFileType(z.getPacketFileType());
             t.setPacketDate(z.getPacketDate());
-            t.setBody(new String(body, "ISO-8859-1"));
+            log.info("t.body().length = " + out.size());
+            t.setBody(out.toString("ISO-8859-1"));
             collector.emit("text_item", new Values(t));
-        } catch (DataFormatException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        } catch(Exception e) {
+            log.error("ZIS", e);
         }
-        decompresser.end();
 
         
     }
