@@ -52,16 +52,19 @@ public class EMWINTopology {
         tb.setBolt("text_assemble", new AssembleTextPacketsBolt(), 1)
                 .shuffleGrouping("emwin_sort", "text");
 
+        tb.setBolt("zis_assemble", new AssembleBinaryPacketsBolt(), 1)
+        .shuffleGrouping("emwin_sort", "zis");
+
         tb.setBolt("text_parse", new ParseTextItem(), 2)
                 .shuffleGrouping("text_assemble", "text_item")
                 .shuffleGrouping("emwin_sort", "text_item");
         
         tb.setBolt("vtec_json", new vtecPostJSON(), 2)
                 .shuffleGrouping("text_parse", "vtec_item");
-
-        tb.setBolt("text_file_post", new HttpPostTextItem(), 2)
-        .shuffleGrouping("text_parse", "text_item");
-
+        if (remote) {
+            tb.setBolt("text_file_post", new HttpPostTextItem(), 2)
+            .shuffleGrouping("text_parse", "text_item");
+        }
 
         Config conf = new Config();
         conf.setDebug(false);

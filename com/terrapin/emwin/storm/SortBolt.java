@@ -50,7 +50,7 @@ public class SortBolt extends BaseBasicBolt {
             }
             break;
         case "ZIS":
-            // collector.emit("zis", new Values(p));
+            collector.emit("zis", new Values(p));
             break;
         case "JPG":
         case "GIF":
