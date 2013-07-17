@@ -57,12 +57,20 @@ public class EMWINTopology {
 
         tb.setBolt("text_parse", new ParseTextItem(), 2)
                 .shuffleGrouping("text_assemble", "text_item")
-                .shuffleGrouping("emwin_sort", "text_item");
+                .shuffleGrouping("emwin_sort", "text_item")
+                .shuffleGrouping("decompress_zis", "text_item");
         
         tb.setBolt("vtec_json", new vtecPostJSON(), 2)
                 .shuffleGrouping("text_parse", "vtec_item");
+
+        tb.setBolt("decompress_zis", new DecompressZisTextItem(), 2)
+                .shuffleGrouping("zis_assemble", "zis_item");
+        
         if (remote) {
             tb.setBolt("text_file_post", new HttpPostTextItem(), 2)
+            .shuffleGrouping("text_parse", "text_item");
+        } else {
+            tb.setBolt("file_write", new WriteItemToFile(), 2)
             .shuffleGrouping("text_parse", "text_item");
         }
 

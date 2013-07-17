@@ -5,8 +5,10 @@ package com.terrapin.emwin.storm;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
 import org.json.JSONObject;
@@ -14,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.terrapin.emwin.object.TextItem;
+import com.terrapin.emwin.object.ZisItem;
 import com.terrapin.emwin.object.vtecItem;
 
 import backtype.storm.topology.BasicOutputCollector;
@@ -25,12 +28,15 @@ import backtype.storm.tuple.Tuple;
  * @author pcurtis
  *
  */
-public class WriteTextItemToFile extends BaseBasicBolt {
-    private TextItem t;
-    public static final Logger log = LoggerFactory.getLogger(WriteTextItemToFile.class);
+public class WriteItemToFile extends BaseBasicBolt {
+    private Object obj;
+    private String fn;
+    private String ft;
+    private byte[] pBody;
+    private static final Logger log = LoggerFactory.getLogger(WriteItemToFile.class);
     private Properties props;
     
-    public WriteTextItemToFile() {
+    public WriteItemToFile() {
         props = EMWINTopology.loadProperties();
     }
 
@@ -39,20 +45,37 @@ public class WriteTextItemToFile extends BaseBasicBolt {
      */
     @Override
     public void execute(Tuple input, BasicOutputCollector collector) {
-        t = (TextItem) input.getValueByField("item");
-        int hash = t.hashCode();
+        obj = input.getValueByField("item");
+        
+        if (obj instanceof TextItem) {
+            TextItem t = (TextItem) obj;
+            fn = t.getPacketFileName();
+            ft = t.getPacketFileType();
+            try {
+                pBody = t.getBody().getBytes("ISO-8859-1");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        } else if (obj instanceof ZisItem) {
+            ZisItem t = (ZisItem) obj;
+            fn = t.getPacketFileName();
+            ft = t.getPacketFileType();
+            pBody = t.getBody();
+        } else
+            return;
+        
+        int hash = obj.hashCode();
         try {
-            File file = new File(props.getProperty("json.directory") + "/" + t.getPacketFileName() +"." + t.getPacketFileType());
+            File file = new File(props.getProperty("json.directory") + "/" + fn +"." + ft);
 
             // if file does not exist, then create it
             if (!file.exists()) {
                 file.createNewFile();
             }
             
-            FileWriter fw = new FileWriter(file.getAbsoluteFile());
-            BufferedWriter bw = new BufferedWriter(fw);
-            bw.write(t.getBody());
-            bw.close();
+            FileOutputStream fw = new FileOutputStream(file.getAbsoluteFile());
+            fw.write(pBody);
+            fw.close();
 
         } catch (IOException e) {
             e.printStackTrace();

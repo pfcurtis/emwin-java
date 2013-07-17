@@ -3,6 +3,7 @@
  */
 package com.terrapin.emwin.object;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +13,7 @@ import java.util.Date;
  * @author pcurtis
  *
  */
-public class ZisItem {
+public class ZisItem implements Serializable {
     private static final long serialVersionUID = 4L;
     private byte[] body = null;
     private Date packetDate = null;

@@ -68,8 +68,8 @@ public class AssembleBinaryPacketsBolt extends BaseBasicBolt {
             t.setPacketFileType(p.ft);
             t.setPacketDate(p.fd);
             t.setBody(pkts.get(pktKey));
-            collector.emit("text_item", new Values(t));
-            log.debug("Assembled " + p.fn + "." + p.ft + " ...");
+            collector.emit("zis_item", new Values(t));
+            log.info("Assembled " + p.fn + "." + p.ft + " ... " + p.pt + " parts");
         }
 
     }
