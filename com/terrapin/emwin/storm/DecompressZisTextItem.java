@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.zip.DataFormatException;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.IOUtils;
@@ -41,14 +42,18 @@ public class DecompressZisTextItem extends BaseBasicBolt {
     public void execute(Tuple input, BasicOutputCollector collector) {
         ZisItem z = (ZisItem) input.getValueByField("item");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        log.info("z.getBody().length = " + z.getBody().length);
+        log.debug("z.getBody().length = " + z.getBody().length);
+        ZipInputStream zin = new ZipInputStream(new ByteArrayInputStream(z.getBody()));   
         try {
-            IOUtils.copy(new ZipInputStream(new ByteArrayInputStream(z.getBody())), out);
+            ZipEntry ze = zin.getNextEntry();
+            String[] fn = ze.getName().split("\\.");
+            log.debug("Zip Entry: '" + ze.getName() + "'"); 
+            int rc = IOUtils.copy(zin, out);
+            log.debug("out.size() = " + out.size());
             TextItem t = new TextItem();
-            t.setPacketFileName(z.getPacketFileName());
-            t.setPacketFileType(z.getPacketFileType());
+            t.setPacketFileName(fn[0]);
+            t.setPacketFileType(fn[1]);
             t.setPacketDate(z.getPacketDate());
-            log.info("t.body().length = " + out.size());
             t.setBody(out.toString("ISO-8859-1"));
             collector.emit("text_item", new Values(t));
         } catch(Exception e) {
