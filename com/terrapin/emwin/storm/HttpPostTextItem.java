@@ -14,8 +14,11 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.terrapin.emwin.object.TextItem;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -47,21 +50,28 @@ public class HttpPostTextItem extends BaseRichBolt {
      */
     @Override
     public void execute(Tuple input) {
+        TextItem t = (TextItem) input.getValueByField("item");
         HttpClient client = new DefaultHttpClient();
         HttpPost post = new HttpPost(postURL);
+        HttpResponse response = null;
         StringEntity postData = null;
         try {
-            postData = new StringEntity("product");
+            postData = new StringEntity(new JSONObject(t).toString());
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            log.error("Could not create POST data", e);
         }
         post.setEntity(postData);
         try {
-            HttpResponse response = client.execute(post);
+            response = client.execute(post);
+            log.info(t.getPacketFileName() + "." + t.getPacketFileType() + " POSTed");
         } catch (ClientProtocolException e) {
-            e.printStackTrace();
+            log.error("POST failed.", e);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("I/O Exception.",e);
+        }
+        
+        if (response.getStatusLine().getStatusCode() != 200) {
+            log.error("POST returned status = " + response.getStatusLine());
         }
     }
 

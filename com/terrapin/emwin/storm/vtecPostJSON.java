@@ -13,7 +13,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.terrapin.emwin.object.TextItem;
 import com.terrapin.emwin.object.vtecItem;
 
 import backtype.storm.topology.BasicOutputCollector;
