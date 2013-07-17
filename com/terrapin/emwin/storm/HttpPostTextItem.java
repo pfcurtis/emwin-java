@@ -30,7 +30,7 @@ import backtype.storm.tuple.Tuple;
 public class HttpPostTextItem extends BaseRichBolt {
     public static final Logger log = LoggerFactory.getLogger(HttpPostTextItem.class);
     private Properties props;
-
+    private String postURL = null;
 
     /* (non-Javadoc)
      * @see backtype.storm.task.IBolt#prepare(java.util.Map, backtype.storm.task.TopologyContext, backtype.storm.task.OutputCollector)
@@ -39,6 +39,7 @@ public class HttpPostTextItem extends BaseRichBolt {
     public void prepare(Map stormConf, TopologyContext context,
             OutputCollector collector) {
         props = EMWINTopology.loadProperties();
+        postURL = (String) props.get("postitem.url");
     }
 
     /* (non-Javadoc)
@@ -47,7 +48,7 @@ public class HttpPostTextItem extends BaseRichBolt {
     @Override
     public void execute(Tuple input) {
         HttpClient client = new DefaultHttpClient();
-        HttpPost post = new HttpPost("http://restUrl");
+        HttpPost post = new HttpPost(postURL);
         StringEntity postData = null;
         try {
             postData = new StringEntity("product");
