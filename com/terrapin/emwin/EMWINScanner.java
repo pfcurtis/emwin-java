@@ -166,7 +166,7 @@ public class EMWINScanner {
                     last = sl_c;
                 }
                 con.setServerList(serverList.toString());
-                log.info("/ServerList/ = "+serverList);
+                log.debug("/ServerList/ = "+serverList);
             } else {
                 continue;
             }

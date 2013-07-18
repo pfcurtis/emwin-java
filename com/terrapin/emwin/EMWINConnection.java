@@ -3,12 +3,22 @@
  */
 package com.terrapin.emwin;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.Timer;
 
 import org.slf4j.Logger;
@@ -16,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.terrapin.emwin.object.Server;
 import com.terrapin.emwin.storm.EMWINSpout;
+import com.terrapin.emwin.storm.EMWINTopology;
 
 /**
  * This class manages and maintains the network connection to the server(s).
@@ -32,19 +43,24 @@ public class EMWINConnection implements Serializable {
     private OutputStream out = null;
     private EMWINInputStream in = null;
     private Timer t;
+    private Properties props;
+    private String configDirectory;
 
     private final Logger log = LoggerFactory.getLogger(EMWINConnection.class);
 
     public EMWINConnection() {
-        
-        // Initialize with the default servers
-        // 140.90.6.245:1000
-        // 140.90.128.132:1000
-        // 140.90.128.133:1000
-        sl.add(new Server("140.90.6.245", 1000));
-        sl.add(new Server("140.90.128.132", 1000));
-        sl.add(new Server("140.90.128.133", 1000));
-        
+        props = EMWINTopology.loadProperties();
+        configDirectory = props.getProperty("config.directory", "./");
+
+        if (!readServerList()) {
+            // Initialize with the default servers
+            // 140.90.6.245:1000
+            // 140.90.128.132:1000
+            // 140.90.128.133:1000
+            sl.add(new Server("140.90.6.245", 1000));
+            sl.add(new Server("140.90.128.132", 1000));
+            sl.add(new Server("140.90.128.133", 1000));
+        }
     }
     
     public void connect() {
@@ -135,9 +151,57 @@ public class EMWINConnection implements Serializable {
                 s = s.substring(start);
             }
             serverIndex = sl.size();
+            writeServerList();
             log.info("new Server List received, "+ sl.size() + " servers.");
         }
         nextServer();
         
+    }
+    
+    /**
+     * This method serializes the server list and writes it out to a file for future use.
+     */
+    private void writeServerList() {
+
+        try {
+            //use buffering
+            OutputStream file = new FileOutputStream( configDirectory + "/server_list.ser" );
+            OutputStream buffer = new BufferedOutputStream( file );
+            ObjectOutput output = new ObjectOutputStream( buffer );
+            try {
+                output.writeObject(sl);
+            } finally {
+                output.close();
+            }
+        }  
+        catch(IOException ex){
+            log.error("Cannot perform output.", ex);
+        }
+
+    }
+
+    /**
+     * This method reads the server list from disk, if it exists
+     */
+    private boolean readServerList() {
+        try {
+            //use buffering
+            InputStream file = new FileInputStream( configDirectory + "/server_list.ser" );
+            InputStream buffer = new BufferedInputStream( file );
+            ObjectInput input = new ObjectInputStream ( buffer );
+            try {
+                sl = (ArrayList<Server>)input.readObject();
+            } finally {
+                input.close();
+                return true;
+            }    
+            } catch(ClassNotFoundException e) {
+                log.error("Cannot perform input. Class not found.", e);
+                return false;
+            } catch(IOException e){
+                log.error("Cannot perform input.", e);
+                return false;
+            }
+        }    
     }
 }

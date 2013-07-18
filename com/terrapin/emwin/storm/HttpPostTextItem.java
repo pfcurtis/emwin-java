@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.httpclient.NoHttpResponseException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -66,6 +67,8 @@ public class HttpPostTextItem extends BaseRichBolt {
             log.info(t.getPacketFileName() + "." + t.getPacketFileType() + " POSTed");
         } catch (ClientProtocolException e) {
             log.error("POST failed.", e);
+        } catch (NoHttpResponseException e) {
+            log.error("Web Service Failure", e);
         } catch (IOException e) {
             log.error("I/O Exception.",e);
         }
