@@ -68,22 +68,29 @@ public class EMWINConnection implements Serializable {
         while (true) {
             Server s = sl.get(serverIndex);
             try {
-                log.info("Connecting ... Server " + (serverIndex + 1) +" of " + sl.size() + " servers.");
-
-                emwinSocket = new Socket(s.getHost(), s.getPort());
-                out = emwinSocket.getOutputStream();
-                in = new EMWINInputStream(emwinSocket.getInputStream());
-                log.info("Connected to '" + s.getHost() +":"+s.getPort()+"'");
-                break;
-
+                if (s.usable) {
+                    log.info("Connecting ... Server " + (serverIndex + 1) +" of " + sl.size() + " servers.");
+                    emwinSocket = new Socket(s.getHost(), s.getPort());
+                    out = emwinSocket.getOutputStream();
+                    in = new EMWINInputStream(emwinSocket.getInputStream());
+                    log.info("Connected to '" + s.getHost() +":"+s.getPort()+"'");
+                    break;
+                }
+                nextServer();
             } catch (UnknownHostException e) {
                 log.error("Don't know about host '" + s.getHost() + "'", e);
+                s.usable = false;
+                writeServerList();
                 nextServer();
             } catch (IOException e) {
                 log.error("Couldn't get I/O for the connection to '"+s.getHost()+":"+s.getPort()+"'", e);
+                s.usable = false;
+                writeServerList();
                 nextServer();
             } catch (Exception e) {
                 log.error("Exception on connection to '"+s.getHost()+":"+s.getPort()+"'", e);
+                s.usable = false;
+                writeServerList();
                 nextServer();
             }
         }
