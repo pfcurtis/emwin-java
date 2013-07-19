@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.terrapin.emwin.object.Server;
 import com.terrapin.emwin.storm.EMWINSpout;
 import com.terrapin.emwin.storm.EMWINTopology;
+import com.terrapin.emwin.util.ServerList;
 
 /**
  * This class manages and maintains the network connection to the server(s).
@@ -36,9 +37,7 @@ import com.terrapin.emwin.storm.EMWINTopology;
  */
 public class EMWINConnection implements Serializable {
 
-    private ArrayList<Server> sl = new ArrayList();
-    private int serverIndex = 0; 
-
+    private ServerList sl;
     private Socket emwinSocket = null;
     private OutputStream out = null;
     private EMWINInputStream in = null;
@@ -51,54 +50,32 @@ public class EMWINConnection implements Serializable {
     public EMWINConnection() {
         props = EMWINTopology.loadProperties();
         configDirectory = props.getProperty("config.directory", "./");
-
-        if (!readServerList()) {
-            // Initialize with the default servers
-            // 140.90.6.245:1000
-            // 140.90.128.132:1000
-            // 140.90.128.133:1000
-            sl.add(new Server("140.90.6.245", 1000));
-            sl.add(new Server("140.90.128.132", 1000));
-            sl.add(new Server("140.90.128.133", 1000));
-            log.info("Initialized with default EMWIN servers.");
-        }
+        sl = new ServerList();
     }
 
     public void connect() {
 
         while (true) {
-            Server s = sl.get(serverIndex);
             try {
-                if (s.usable) {
-                    log.info("Connecting ... Server " + (serverIndex + 1) +" of " + sl.size() + " servers.");
-                    emwinSocket = new Socket(s.getHost(), s.getPort());
-                    out = emwinSocket.getOutputStream();
-                    in = new EMWINInputStream(emwinSocket.getInputStream());
-                    log.info("Connected to '" + s.getHost() +":"+s.getPort()+"'");
-                    break;
-                }
-                nextServer();
+                emwinSocket = new Socket(sl.getHost(), sl.getPort());
+                out = emwinSocket.getOutputStream();
+                in = new EMWINInputStream(emwinSocket.getInputStream());
+                log.info("Connected to '" + sl.getHost() +":"+sl.getPort()+"'");
+                break;
             } catch (UnknownHostException e) {
-                log.error("Don't know about host '" + s.getHost() + "'", e);
-                s.usable = false;
-                writeServerList();
-                nextServer();
+                log.error("Don't know about host '" + sl.getHost() + "'", e);
+                sl.markServerDisabled();
             } catch (IOException e) {
-                log.error("Couldn't get I/O for the connection to '"+s.getHost()+":"+s.getPort()+"'", e);
-                s.usable = false;
-                writeServerList();
-                nextServer();
+                log.error("Couldn't get I/O for the connection to '"+sl.getHost()+":"+sl.getPort()+"'", e);
+                sl.markServerDisabled();
             } catch (Exception e) {
-                log.error("Exception on connection to '"+s.getHost()+":"+s.getPort()+"'", e);
-                s.usable = false;
-                writeServerList();
-                nextServer();
+                log.error("Exception on connection to '"+sl.getHost()+":"+sl.getPort()+"'", e);
+                sl.markServerDisabled();
             }
         }
 
         t = new Timer("Heartbeat", true);
         t.schedule(new EMWINHeartbeat(out), 0, 300000);
-        nextServer();
     }
 
     public void close() {
@@ -115,14 +92,6 @@ public class EMWINConnection implements Serializable {
         }
     }
 
-    private void nextServer() {
-        synchronized (sl) {
-            serverIndex++;
-            if (serverIndex >= sl.size()) {
-                serverIndex = 0;
-            }
-        }
-    }
 
     /**
      * @return the connection input stream
@@ -147,72 +116,7 @@ public class EMWINConnection implements Serializable {
      * @see EMWINScanner
      */
     public void setServerList(String s) {
-
-        // ServerList/198.105.228.6:1000|140.90.128.1:1000|216.248.137.10:2211|108.76.168.147:1000|24.54.148.4:2211|wx.2y.net:2211|emwin.aprsfl.net:2211|p1.wxpro.net:2211|6.pool.iemwin.net:2211|2.pool.iemwin.net:2211|140.90.128.132:1000|1.pool.iemwin.net:2211|w.2y.net:1000|140.90.128.133:1000|3.pool.iemwin.net:2211|140.90.6.245:1000|140.90.24.30:22|140.90.24.118:22|76.107.51.99:1000|71.43.225.58:2211|140.90.6.240:1000|184.6.183.200:1000|
-        synchronized (sl) {
-            sl.clear();
-            s = s.substring(s.indexOf('/') + 1);
-            while (s.indexOf('|') != -1) {
-                String[] server = s.substring(0, s.indexOf('|')).split(":");
-                sl.add(new Server(server[0], new Integer(server[1]).intValue()));
-                int start = s.indexOf('|') + 1;
-                s = s.substring(start);
-            }
-            if (serverIndex > sl.size())
-                serverIndex = sl.size();
-
-            writeServerList();
-            log.info("new Server List received, "+ sl.size() + " servers.");
-        }
-        nextServer();
-
+        sl.setServerList(s);
     }
 
-    /**
-     * This method serializes the server list and writes it out to a file for future use.
-     */
-    private void writeServerList() {
-
-        try {
-            //use buffering
-            OutputStream file = new FileOutputStream( configDirectory + "/server_list.ser" );
-            OutputStream buffer = new BufferedOutputStream( file );
-            ObjectOutput output = new ObjectOutputStream( buffer );
-            try {
-                output.writeObject(sl);
-            } finally {
-                output.close();
-            }
-        }  
-        catch(IOException ex){
-            log.error("Cannot perform output.", ex);
-        }
-
-    }
-
-    /**
-     * This method reads the server list from disk, if it exists
-     */
-    @SuppressWarnings("unchecked")
-    private boolean readServerList() {
-        ObjectInput input = null;
-        try {
-            //use buffering
-            InputStream file = new FileInputStream( configDirectory + "/server_list.ser" );
-            InputStream buffer = new BufferedInputStream( file );
-            input = new ObjectInputStream ( buffer );
-            input.close();
-        } catch(IOException e){
-            log.warn("Cannot perform input.", e);
-            return false;
-        }    
-
-        try {
-            sl = (ArrayList<Server>)input.readObject();
-        } catch(Exception e1) {
-            log.warn("Cannot perform input.", e1);
-            return false;
-        }    
-        return true;
-    }
 }

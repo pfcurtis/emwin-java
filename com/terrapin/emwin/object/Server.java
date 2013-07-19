@@ -17,11 +17,28 @@ public class Server implements Serializable {
     private int port = 0;
     public boolean usable = true;
 
+    /**
+     * 
+     * @param h host name or IP address
+     * @param p port number
+     */
     public Server(String h, int p) {
         host = h;
         port = p;
     }
 
+    /**
+     * 
+     * @param s server list string
+     */
+    public Server(String s) {
+        String[] server = s.split(":");
+        this.host = new String(server[0]);
+        this.port = new Integer(server[1]).intValue();
+    }
+    
+    private Server() {
+    }
     /**
      * @return the host
      */
