@@ -1,6 +1,7 @@
 package com.terrapin.emwin;
 
 import java.util.regex.*;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
@@ -27,7 +28,7 @@ import com.terrapin.emwin.storm.EMWINSpout;
  * @see Packet
  */
 
-public class EMWINValidator {
+public class EMWINValidator implements Serializable {
 
     private final Logger log = LoggerFactory.getLogger(EMWINValidator.class);
     

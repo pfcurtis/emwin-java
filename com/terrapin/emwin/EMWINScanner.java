@@ -1,5 +1,6 @@
 package com.terrapin.emwin;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.zip.DataFormatException;
@@ -21,7 +22,7 @@ import com.terrapin.emwin.storm.EMWINSpout;
  * validated
  */
 
-public class EMWINScanner {
+public class EMWINScanner implements Serializable {
 
     private final Logger log = LoggerFactory.getLogger(EMWINScanner.class);
 

@@ -14,7 +14,7 @@ import java.io.*;
  * @author pcurtis
  * 
  */
-public class EMWINInputStream {
+public class EMWINInputStream implements Serializable {
     private InputStream i;
     private DataInputStream dis;
 

@@ -12,7 +12,7 @@ import java.io.*;
  * @author pcurtis
  * 
  */
-public class EMWINHeartbeat extends TimerTask {
+public class EMWINHeartbeat extends TimerTask implements Serializable {
 
     private static final String HeartbeatMessage = "ByteBlast Client|admin@weather.terrapin.com|V2";
     private byte[] b;
