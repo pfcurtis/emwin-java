@@ -62,7 +62,7 @@ public class EMWINSpout extends BaseSignalSpout {
     private void stopSpout() {
         log.error("Stopping Spout: Socket I/O exception raised.");
         con.close();
-
+        con.getServerList().nextServer();
         
         log.error("Sleeping 3 seconds before restarting socket stream.");
         try {

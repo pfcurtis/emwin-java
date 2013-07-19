@@ -43,13 +43,11 @@ public class EMWINConnection implements Serializable {
     private EMWINInputStream in = null;
     private Timer t;
     private Properties props;
-    private String configDirectory;
-
     private final Logger log = LoggerFactory.getLogger(EMWINConnection.class);
 
     public EMWINConnection() {
         props = EMWINTopology.loadProperties();
-        configDirectory = props.getProperty("config.directory", "./");
+        props.getProperty("config.directory", "./");
         sl = new ServerList();
     }
 
@@ -117,6 +115,14 @@ public class EMWINConnection implements Serializable {
      */
     public void setServerList(String s) {
         sl.setServerList(s);
+    }
+
+    /**
+     * 
+     * @return current server list
+     */
+    public ServerList getServerList() {
+        return sl;
     }
 
 }

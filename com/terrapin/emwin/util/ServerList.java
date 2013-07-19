@@ -6,6 +6,7 @@ package com.terrapin.emwin.util;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +18,9 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -37,17 +40,18 @@ public class ServerList implements Serializable {
      * 
      */
     private static final long serialVersionUID = 1L;
-    private Map<String, Server> sl;
-    private ArrayList<String> serverSequence;
+    private Hashtable<String, Server> sl;
+    private ArrayList<String> serverSequence = new ArrayList<String>();
     private volatile int serverIndex = 0;
     
     private final Logger log = LoggerFactory.getLogger(ServerList.class);
     
     public ServerList() {
+        sl = new Hashtable<String, Server>();
         readServerList();
         if (sl.isEmpty()) {
+            log.info("Initializing server list with default values.");
             setServerList("ServerList/140.90.6.245:1000|140.90.128.132:1000|140.90.128.133:1000|");
-            log.info("Initialized server list with default values.");
         }
     }
     
@@ -62,15 +66,17 @@ public class ServerList implements Serializable {
             while (s.indexOf('|') != -1) {
                 String server = s.substring(0, s.indexOf('|'));
                 serverSequence.add(server);
+                log.debug("adding server '"+server+"'");
                 int start = s.indexOf('|') + 1;
                 s = s.substring(start);
             }
-            Map<String, Server> newList = Collections.synchronizedMap(new HashMap());
+            Hashtable<String, Server> newList = new Hashtable<String, Server>();
             Iterator<String> i = serverSequence.iterator();
             while (i.hasNext()) {
                 String value = i.next();
+                log.debug("Checking server '"+value+"'");
                 if (sl.containsKey(value)) {
-                    Server known = sl.get(value);
+                    Server known = (Server)sl.get(value);
                     newList.put(value,known);
                 } else {
                     newList.put(value,  new Server(value));
@@ -80,6 +86,7 @@ public class ServerList implements Serializable {
             serverIndex = 0;
             writeServerList();
         }
+
         log.info("new Server List received, "+ sl.size() + " servers.");
 
     }
@@ -102,6 +109,9 @@ public class ServerList implements Serializable {
         return ((Server)sl.get(key)).getPort();
     }
     
+    /**
+     * Mark the current server as unavailable. This is tracked, so the server will permanently be marked as unavailable.
+     */
     public void markServerDisabled() {
         synchronized (serverSequence) {
             String key = serverSequence.get(serverIndex);
@@ -112,6 +122,16 @@ public class ServerList implements Serializable {
             if (serverIndex >= serverSequence.size()) {
                 serverIndex = 0;
             }
+        }
+    }
+
+    /**
+     * Increments the server index. This is only used when a manual disconnect is sent to the spout.
+     */
+    public void nextServer() {
+        serverIndex++;
+        if (serverIndex >= serverSequence.size()) {
+            serverIndex = 0;
         }
     }
     
@@ -141,16 +161,24 @@ public class ServerList implements Serializable {
      */
     @SuppressWarnings("unchecked")
     private void readServerList() {
-        ObjectInput input = null;
+        InputStream file = null;
         try {
-            InputStream file = new FileInputStream( EMWINTopology.loadProperties().getProperty("config.directory", "./") + "/server_list.ser" );
-            input = new ObjectInputStream ( file );
-            sl = (Map<String, Server>)input.readObject();
-            input.close();
-        } catch(Exception e1) {
-            log.warn("Cannot read 'Map<String, Server>' from server list file.", e1);
-            return;
-        }    
+            file = new FileInputStream( EMWINTopology.loadProperties().getProperty("config.directory", "./") + "/server_list.ser" );
+            try {
+                ObjectInputStream input = new ObjectInputStream ( file );
+                log.info("Reading server list file ....");
+                sl = (Hashtable<String, Server>)input.readObject();
+                input.close();
+                Enumeration<String> e = sl.keys();
+                while (e.hasMoreElements()){
+                    serverSequence.add(e.nextElement());
+                }
+            } catch(Exception e1) {
+                log.info("Cannot read 'Hashtable' from server list file.", e1);
+            }    
+        } catch (FileNotFoundException e1) {
+            log.info("server list file not found.");
+        }
     }
 
 
