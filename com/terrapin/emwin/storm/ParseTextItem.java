@@ -147,7 +147,7 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
                             try {
                                 t.setExpires(df.parse(expireRE.group(1)));
                             } catch (ParseException e) {
-                                e.printStackTrace();
+                                log.warn("expiresRE: " + e.getMessage());
                             }
                             continue;
                         }
@@ -188,7 +188,7 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
                 zlist.add(z);
             }
         } catch (java.lang.NumberFormatException e) {
-            e.printStackTrace();
+            log.warn("Zone range parse: " + e.getMessage());
         }
     }
 

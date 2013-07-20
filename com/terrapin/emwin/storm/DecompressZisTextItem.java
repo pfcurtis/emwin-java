@@ -57,7 +57,7 @@ public class DecompressZisTextItem extends BaseBasicBolt {
             t.setBody(out.toString("ISO-8859-1"));
             collector.emit("text_item", new Values(t));
         } catch(Exception e) {
-            log.error("ZIS", e);
+            log.warn("ZIS" + e.getMessage());
         }
 
         

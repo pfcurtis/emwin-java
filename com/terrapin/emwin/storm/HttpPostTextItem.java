@@ -59,22 +59,22 @@ public class HttpPostTextItem extends BaseRichBolt {
         try {
             postData = new StringEntity(new JSONObject(t).toString());
         } catch (UnsupportedEncodingException e) {
-            log.error("Could not create POST data", e);
+            log.warn("Could not create POST data" + e.getMessage());
         }
         post.setEntity(postData);
         try {
             response = client.execute(post);
             log.info(t.getPacketFileName() + "." + t.getPacketFileType() + " POSTed");
         } catch (ClientProtocolException e) {
-            log.error("POST failed.", e);
+            log.warn("POST failed." + e.getMessage());
         } catch (NoHttpResponseException e) {
-            log.error("Web Service Failure", e);
+            log.warn("Web Service Failure" + e.getMessage());
         } catch (IOException e) {
-            log.error("I/O Exception.",e);
+            log.warn("I/O Exception." + e.getMessage());
         }
         
         if (response.getStatusLine().getStatusCode() != 200) {
-            log.error("POST returned status = " + response.getStatusLine());
+            log.warn("POST returned status = " + response.getStatusLine());
         }
     }
 

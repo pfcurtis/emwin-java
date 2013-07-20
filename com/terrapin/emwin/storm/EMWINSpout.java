@@ -68,7 +68,7 @@ public class EMWINSpout extends BaseSignalSpout {
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.warn("Thread sleep: " + e.getMessage());
         }
         this.startSpout();
     }
@@ -99,7 +99,7 @@ public class EMWINSpout extends BaseSignalSpout {
                         queue.put(p);
                     }
                 } catch (Exception e) {
-                    log.error("producer() stopped.", e);
+                    log.warn("producer() stopped. " + e.getMessage());
                     stopSpout();
                 }
             }
@@ -118,7 +118,7 @@ public class EMWINSpout extends BaseSignalSpout {
                 _collector.emit(new Values(p, p.ft), msgid);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("nextTuple: " + e.getMessage());
             stopSpout();
         }
     }

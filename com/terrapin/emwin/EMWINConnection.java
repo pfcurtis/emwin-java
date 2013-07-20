@@ -58,16 +58,16 @@ public class EMWINConnection implements Serializable {
                 emwinSocket = new Socket(sl.getHost(), sl.getPort());
                 out = emwinSocket.getOutputStream();
                 in = new EMWINInputStream(emwinSocket.getInputStream());
-                log.info("Connected to '" + sl.getHost() +":"+sl.getPort()+"'");
+                log.warn("Connected to '" + sl.getHost() +":"+sl.getPort()+"'");
                 break;
             } catch (UnknownHostException e) {
-                log.error("Don't know about host '" + sl.getHost() + "'", e);
+                log.warn("Don't know about host '" + sl.getHost() + "': " + e.getMessage());
                 sl.markServerDisabled();
             } catch (IOException e) {
-                log.error("Couldn't get I/O for the connection to '"+sl.getHost()+":"+sl.getPort()+"'", e);
+                log.warn("Couldn't get I/O for the connection to '"+sl.getHost()+":"+sl.getPort()+"': " + e.getMessage());
                 sl.markServerDisabled();
             } catch (Exception e) {
-                log.error("Exception on connection to '"+sl.getHost()+":"+sl.getPort()+"'", e);
+                log.warn("Exception on connection to '"+sl.getHost()+":"+sl.getPort()+"': " + e.getMessage());
                 sl.markServerDisabled();
             }
         }
@@ -86,7 +86,7 @@ public class EMWINConnection implements Serializable {
             in.close();
             emwinSocket.close();
         } catch (IOException e) {
-            log.error("Attempting to close() connection", e);
+            log.warn("Attempting to close() connection: " + e.getMessage());
         }
     }
 
