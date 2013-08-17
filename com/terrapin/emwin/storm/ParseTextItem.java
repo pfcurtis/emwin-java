@@ -166,6 +166,7 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
             }
 
         } // while scanner
+        log.info("text_item '"+t.getPacketFileName()+"' emitted.");
         collector.emit("text_item", new Values(t));
     }
 
