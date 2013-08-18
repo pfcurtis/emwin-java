@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.terrapin.emwin.EMWINProperties;
 import com.terrapin.emwin.object.vtecItem;
 
 import backtype.storm.topology.BasicOutputCollector;
@@ -35,7 +36,7 @@ public class vtecPostJSON extends BaseBasicBolt {
      * 
      */
     public vtecPostJSON() {
-        props = EMWINTopology.loadProperties();
+        props = EMWINProperties.loadProperties();
     }
 
     /* (non-Javadoc)

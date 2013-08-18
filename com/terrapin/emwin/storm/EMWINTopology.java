@@ -11,34 +11,17 @@ import backtype.storm.topology.TopologyBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.io.Resources;
+import com.terrapin.emwin.EMWINProperties;
 
 public class EMWINTopology {
 
     public static final Logger log = LoggerFactory
             .getLogger(EMWINTopology.class);
 
-    public static Properties loadProperties() {
-        Properties props = new Properties();
-        loadProperties("emwin-java.properties", props);
-        return props;
-    }
-
-    private static Properties loadProperties(String resource, Properties props) {
-        try {
-            InputStream is = Resources.getResource(resource).openStream();
-            log.info("Loading properties from '" + resource + "'.");
-            props.load(is);
-        } catch (Exception e) {
-            log.info("Not loading properties from '" + resource + "'.");
-            log.info(e.getMessage());
-        }
-        return props;
-    }
-
     public static void main(String[] args) throws AlreadyAliveException,
             InvalidTopologyException, InterruptedException {
 
-        Properties props = EMWINTopology.loadProperties();
+        Properties props = EMWINProperties.loadProperties();
         Boolean remote = Boolean.parseBoolean(props.getProperty("remote"));
         log.info("Building Topology");
 

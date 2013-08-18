@@ -46,7 +46,7 @@ public class EMWINConnection implements Serializable {
     private final Logger log = LoggerFactory.getLogger(EMWINConnection.class);
 
     public EMWINConnection() {
-        props = EMWINTopology.loadProperties();
+        props = EMWINProperties.loadProperties();
         props.getProperty("config.directory", "./");
         sl = new ServerList();
     }

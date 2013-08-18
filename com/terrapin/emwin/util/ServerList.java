@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.terrapin.emwin.EMWINConnection;
+import com.terrapin.emwin.EMWINProperties;
 import com.terrapin.emwin.object.Server;
 import com.terrapin.emwin.storm.EMWINTopology;
 
@@ -142,7 +143,7 @@ public class ServerList implements Serializable {
 
         try {
             //use buffering
-            OutputStream file = new FileOutputStream( EMWINTopology.loadProperties().getProperty("config.directory", "./") + "/server_list.ser" );
+            OutputStream file = new FileOutputStream( EMWINProperties.loadProperties().getProperty("config.directory", "./") + "/server_list.ser" );
             ObjectOutput output = new ObjectOutputStream( file );
             try {
                 output.writeObject(sl);
@@ -163,7 +164,7 @@ public class ServerList implements Serializable {
     private void readServerList() {
         InputStream file = null;
         try {
-            file = new FileInputStream( EMWINTopology.loadProperties().getProperty("config.directory", "./") + "/server_list.ser" );
+            file = new FileInputStream( EMWINProperties.loadProperties().getProperty("config.directory", "./") + "/server_list.ser" );
             try {
                 ObjectInputStream input = new ObjectInputStream ( file );
                 log.info("Reading server list file ....");

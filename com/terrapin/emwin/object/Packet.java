@@ -88,7 +88,7 @@ public class Packet implements Serializable {
         if (header == null)
             throw new PacketException("Packet Header not set");
         body = b;
-        cksum = v.calculateChecksum(this);
+        cksum = EMWINValidator.calculateChecksum(this);
         checksumValid = (cksum == cs);
     }
 

@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.terrapin.emwin.EMWINProperties;
 import com.terrapin.emwin.object.TextItem;
 import com.terrapin.emwin.object.ZisItem;
 import com.terrapin.emwin.object.vtecItem;
@@ -37,7 +38,7 @@ public class WriteItemToFile extends BaseBasicBolt {
     private Properties props;
     
     public WriteItemToFile() {
-        props = EMWINTopology.loadProperties();
+        props = EMWINProperties.loadProperties();
     }
 
     /* (non-Javadoc)

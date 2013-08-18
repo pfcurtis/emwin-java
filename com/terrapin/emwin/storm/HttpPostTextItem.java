@@ -23,6 +23,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.terrapin.emwin.EMWINProperties;
 import com.terrapin.emwin.object.TextItem;
 
 import backtype.storm.task.OutputCollector;
@@ -46,7 +47,7 @@ public class HttpPostTextItem extends BaseRichBolt {
     @Override
     public void prepare(Map stormConf, TopologyContext context,
             OutputCollector collector) {
-        props = EMWINTopology.loadProperties();
+        props = EMWINProperties.loadProperties();
         postURL = (String) props.get("postitem.url");
     }
 

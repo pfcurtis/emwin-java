@@ -97,7 +97,7 @@ public class EMWINValidator implements Serializable {
      *            packet to calculate the checksum
      * @return the checksum value
      */
-    public long calculateChecksum(Packet p) {
+    public static long calculateChecksum(Packet p) {
         long cksum = 0;
         byte[] b = p.getBody();
         for (int i = 0; i < b.length; i++)
