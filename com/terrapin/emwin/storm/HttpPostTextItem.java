@@ -74,7 +74,7 @@ public class HttpPostTextItem extends BaseRichBolt {
             response = client.execute(post);
             log.info(t.getPacketFileName() + "." + t.getPacketFileType() + " POSTed");
         } catch (ClientProtocolException e) {
-            log.warn("POST failed for '"+t.getPacketFileName()+"': " + e.getMessage());
+            log.warn("POST failed for '"+t.getPacketFileName()+"': ", e);
         } catch (NoHttpResponseException e) {
             log.warn("Web Service Failure for '"+t.getPacketFileName()+"': " + e.getMessage());
         } catch (IOException e) {
