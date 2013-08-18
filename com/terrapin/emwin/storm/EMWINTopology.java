@@ -28,11 +28,13 @@ public class EMWINTopology {
 
         Properties props = EMWINProperties.loadProperties();
         Boolean remote = Boolean.parseBoolean(props.getProperty("remote"));
-
+        String franzBaseDir = props.getProperty("franz.basedir", "/mapr");
+        String franzTopic = props.getProperty("franz.topic", "emwin");
+        
         // init the MapR Tail Spout
         BlobTupleParser tp = new BlobTupleParser();
-        File statusFile = new File("/mapr/emwin/status");
-        File inDir = new File("/mapr/emwin");
+        File statusFile = new File(franzBaseDir + "/" + franzTopic + "/status");
+        File inDir = new File(franzBaseDir + "/" + franzTopic);
         Pattern inPattern = Pattern.compile("0.*");
         ProtoSpout spout = new ProtoSpout(tp, statusFile, inDir, inPattern);
 
