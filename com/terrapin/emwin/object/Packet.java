@@ -48,17 +48,13 @@ public class Packet implements Serializable {
      */
     public int dl = 0;
     
-    private boolean headerValid = false;
+    public boolean headerValid = false;
     private boolean checksumValid = false;
     private long cksum = 0;
-    private EMWINValidator v;
 
-    private Packet() {
+    public Packet() {
     }
 
-    public Packet(EMWINValidator vin) {
-        v = vin;
-    }
 
     /**
      * Set the header string of this packet. Used in the scanner
@@ -70,7 +66,6 @@ public class Packet implements Serializable {
      */
     public void setHeader(String s) throws PacketException, ParseException {
         header = s;
-        headerValid = v.checkHeader(this);
     }
 
     /**

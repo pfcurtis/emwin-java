@@ -66,7 +66,7 @@ public class EMWINScanner implements Serializable {
      */
     // This method blocks until a packet is available
     public boolean hasNext() throws java.io.IOException, java.net.SocketException {
-        p = new Packet(v);
+        p = new Packet();
         scan();
         try {
             p.setBody(body);
@@ -74,7 +74,7 @@ public class EMWINScanner implements Serializable {
             e.printStackTrace();
             return false;
         }
-        return true;
+        return p.isPacketValid();
     }
 
     /**
@@ -124,6 +124,7 @@ public class EMWINScanner implements Serializable {
                 // In order to read the correct number of bytes, we need to check the header of the packet
                 try {
                     p.setHeader(header.toString());
+                    p.headerValid = v.checkHeader(p);
                     log.debug("Header: "+p.fn+"."+p.ft+"   DL="+p.dl);
                 } catch (Exception e) {
                     break;
