@@ -32,7 +32,7 @@ public class EMWINTopology {
         String franzTopic = props.getProperty("franz.topic", "emwin");
         
         // init the MapR Tail Spout
-        BlobTupleParser tp = new BlobTupleParser();
+/*      BlobTupleParser tp = new BlobTupleParser();
         File statusFile = new File(franzBaseDir + "/" + franzTopic + "/status");
         File inDir = new File(franzBaseDir + "/" + franzTopic);
         Pattern inPattern = Pattern.compile("0.*");
@@ -40,13 +40,13 @@ public class EMWINTopology {
 
         // TODO this should be set to true, but somebody isn't acking tuples correctly and that causes hangs
         spout.setReliableMode(false);
-
+*/
         log.info("Building Topology");
 
         TopologyBuilder tb = new TopologyBuilder();
 
-        tb.setSpout("tail_spout", spout, 1);
-        tb.setBolt("emwin_spout", new EMWINCatcherBolt(), 1).shuffleGrouping("tail_spout");
+        tb.setSpout("emwin_spout", new EMWINSpout("emwin-signal"), 1);
+//      tb.setBolt("emwin_spout", new EMWINCatcherBolt(), 1).shuffleGrouping("tail_spout");
 
         tb.setBolt("emwin_sort", new SortBolt(), 2).shuffleGrouping(
                 "emwin_spout");
