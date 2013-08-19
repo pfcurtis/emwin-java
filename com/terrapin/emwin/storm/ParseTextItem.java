@@ -16,16 +16,18 @@ import com.terrapin.emwin.object.TextItem;
 import com.terrapin.emwin.object.Zone;
 import com.terrapin.emwin.object.vtecItem;
 
+import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.IBasicBolt;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseBasicBolt;
+import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 
-public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
+public class ParseTextItem extends BaseRichBolt {
 
     public final Logger log = LoggerFactory.getLogger(ParseTextItem.class);
     
@@ -49,26 +51,29 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
     private TextItem t;
 
     private ArrayList<Zone> zlist;
+    private OutputCollector collector;
 
+    
     @Override
-    public void prepare(Map stormConf, TopologyContext context) {
+    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
         issuer = Pattern.compile(ISSUER_REGEX);
         nwsDate = Pattern.compile(DATE_REGEX);
         newState = Pattern.compile(NEW_STATE);
         expires = Pattern.compile(EXPIRE_DATE);
         state = Pattern.compile(STATE);
         vtec = Pattern.compile(VTEC_REGEX);
+        this.collector = collector;
         log.info("compiled regexes");
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declareStream("text_item", new Fields("item"));
+        declarer.declareStream("parsed_text_item", new Fields("item"));
         declarer.declareStream("vtec_item", new Fields("item"));
     }
 
     @Override
-    public void execute(Tuple input, BasicOutputCollector collector) {
+    public void execute(Tuple input) {
         // TODO Auto-generated method stub
         t = (TextItem) input.getValueByField("item");
         log.debug(t.getPacketFileName() + "." + t.getPacketFileType() + " "
@@ -167,7 +172,8 @@ public class ParseTextItem extends BaseBasicBolt implements IBasicBolt {
 
         } // while scanner
         log.info("text_item '"+t.getPacketFileName()+"' emitted.");
-        collector.emit("text_item", new Values(t));
+        collector.emit("parsed_text_item", new Values(t));
+        collector.ack(input);
     }
 
     private void parseRangeToken(ArrayList<Zone> zlist, String t, String st, String zc) {

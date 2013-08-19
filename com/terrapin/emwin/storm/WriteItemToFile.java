@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 import java.util.Properties;
 
 import org.json.JSONObject;
@@ -20,22 +21,33 @@ import com.terrapin.emwin.object.TextItem;
 import com.terrapin.emwin.object.ZisItem;
 import com.terrapin.emwin.object.vtecItem;
 
+import backtype.storm.task.OutputCollector;
+import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseBasicBolt;
+import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 
 /**
  * @author pcurtis
  *
  */
-public class WriteItemToFile extends BaseBasicBolt {
+public class WriteItemToFile extends BaseRichBolt {
     private Object obj;
     private String fn;
     private String ft;
     private byte[] pBody;
     private static final Logger log = LoggerFactory.getLogger(WriteItemToFile.class);
     private Properties props;
+    private OutputCollector collector;
+
+    @Override
+    public void prepare(Map stormConf, TopologyContext context,
+            OutputCollector collector) {
+        this.collector = collector;
+        
+    }
     
     public WriteItemToFile() {
         props = EMWINProperties.loadProperties();
@@ -45,7 +57,7 @@ public class WriteItemToFile extends BaseBasicBolt {
      * @see backtype.storm.topology.IBasicBolt#execute(backtype.storm.tuple.Tuple, backtype.storm.topology.BasicOutputCollector)
      */
     @Override
-    public void execute(Tuple input, BasicOutputCollector collector) {
+    public void execute(Tuple input) {
         obj = input.getValueByField("item");
         
         if (obj instanceof TextItem) {
@@ -77,7 +89,7 @@ public class WriteItemToFile extends BaseBasicBolt {
             FileOutputStream fw = new FileOutputStream(file.getAbsoluteFile());
             fw.write(pBody);
             fw.close();
-
+            collector.ack(input);
         } catch (IOException e) {
             e.printStackTrace();
         }

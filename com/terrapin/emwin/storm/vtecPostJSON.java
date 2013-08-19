@@ -7,6 +7,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Properties;
 
 import org.json.JSONObject;
@@ -16,9 +17,12 @@ import org.slf4j.LoggerFactory;
 import com.terrapin.emwin.EMWINProperties;
 import com.terrapin.emwin.object.vtecItem;
 
+import backtype.storm.task.OutputCollector;
+import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseBasicBolt;
+import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 
 /**
@@ -27,10 +31,17 @@ import backtype.storm.tuple.Tuple;
  * @author pcurtis
  *
  */
-public class vtecPostJSON extends BaseBasicBolt {
+public class vtecPostJSON extends BaseRichBolt {
     private vtecItem v;
     public static final Logger log = LoggerFactory.getLogger(vtecPostJSON.class);
     private Properties props;
+    private OutputCollector collector;
+
+    @Override
+    public void prepare(Map stormConf, TopologyContext context,
+            OutputCollector collector) {
+        this.collector = collector;        
+    }
 
     /**
      * 
@@ -43,13 +54,13 @@ public class vtecPostJSON extends BaseBasicBolt {
      * @see backtype.storm.topology.IBasicBolt#execute(backtype.storm.tuple.Tuple, backtype.storm.topology.BasicOutputCollector)
      */
     @Override
-    public void execute(Tuple input, BasicOutputCollector collector) {
+    public void execute(Tuple input) {
         v = (vtecItem) input.getValueByField("item");
         int hash = v.hashCode();
         try {
             File file = new File(props.getProperty("json.directory") + "/" + v.getVtecKey() + "-" + hash + ".json");
 
-            // if file doesnt exists, then create it
+            // if file does not exist, then create it
             if (!file.exists()) {
                 file.createNewFile();
             }
@@ -60,7 +71,7 @@ public class vtecPostJSON extends BaseBasicBolt {
             BufferedWriter bw = new BufferedWriter(fw);
             bw.write(j.toString());
             bw.close();
-
+            collector.ack(input);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -33,6 +33,13 @@ public class EMWINCatcherBolt extends BaseRichBolt {
     }
 
     private OutputCollector collector;
+
+    @Override
+    public void prepare(Map stormConf, TopologyContext context,
+            OutputCollector collector) {
+        this.collector = collector;
+        
+    }
     
     /* (non-Javadoc)
      * @see backtype.storm.topology.IBasicBolt#execute(backtype.storm.tuple.Tuple, backtype.storm.topology.BasicOutputCollector)
@@ -50,14 +57,6 @@ public class EMWINCatcherBolt extends BaseRichBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
         declarer.declare(new Fields("packet", "type"));
-    }
-
-
-    @Override
-    public void prepare(Map stormConf, TopologyContext context,
-            OutputCollector collector) {
-        this.collector = collector;
-        
     }
 
 }

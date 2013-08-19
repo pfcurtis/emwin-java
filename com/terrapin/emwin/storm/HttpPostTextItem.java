@@ -40,7 +40,7 @@ public class HttpPostTextItem extends BaseRichBolt {
     public static final Logger log = LoggerFactory.getLogger(HttpPostTextItem.class);
     private Properties props;
     private String postURL = null;
-
+    private OutputCollector collector;
     /* (non-Javadoc)
      * @see backtype.storm.task.IBolt#prepare(java.util.Map, backtype.storm.task.TopologyContext, backtype.storm.task.OutputCollector)
      */
@@ -49,6 +49,7 @@ public class HttpPostTextItem extends BaseRichBolt {
             OutputCollector collector) {
         props = EMWINProperties.loadProperties();
         postURL = (String) props.get("postitem.url");
+        this.collector = collector;
     }
 
     /* (non-Javadoc)
@@ -73,6 +74,7 @@ public class HttpPostTextItem extends BaseRichBolt {
         post.setEntity(postData);
         try {
             response = client.execute(post);
+            collector.ack(input);
             log.info(t.getPacketFileName() + "." + t.getPacketFileType() + " POSTed");
         } catch (ClientProtocolException e) {
             log.warn("POST failed for '"+t.getPacketFileName()+"': ", e);

@@ -20,6 +20,7 @@ import com.terrapin.emwin.object.ZisItem;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.BasicOutputCollector;
+import backtype.storm.topology.IBasicBolt;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseBasicBolt;
 import backtype.storm.topology.base.BaseRichBolt;
@@ -31,7 +32,7 @@ import backtype.storm.tuple.Values;
  * @author pcurtis
  *
  */
-public class AssembleBinaryPacketsBolt extends BaseBasicBolt {
+public class AssembleBinaryPacketsBolt extends BaseBasicBolt implements IBasicBolt {
 
     public final Logger log = LoggerFactory
             .getLogger(AssembleBinaryPacketsBolt.class);
@@ -68,10 +69,10 @@ public class AssembleBinaryPacketsBolt extends BaseBasicBolt {
             t.setPacketFileType(p.ft);
             t.setPacketDate(p.fd);
             t.setBody(pkts.get(pktKey));
-            collector.emit("zis_item", new Values(t));
+            collector.emit("zis_item", new Values(t)); 
             log.info("Assembled " + p.fn + "." + p.ft + " ... " + p.pt + " parts");
+            pkts.remove(pktKey);
         }
-
     }
 
     /* (non-Javadoc)

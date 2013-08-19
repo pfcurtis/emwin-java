@@ -38,6 +38,9 @@ public class EMWINTopology {
         Pattern inPattern = Pattern.compile("0.*");
         ProtoSpout spout = new ProtoSpout(tp, statusFile, inDir, inPattern);
 
+        // TODO this should be set to true, but somebody isn't acking tuples correctly and that causes hangs
+        spout.setReliableMode(false);
+
         log.info("Building Topology");
 
         TopologyBuilder tb = new TopologyBuilder();
@@ -57,7 +60,7 @@ public class EMWINTopology {
         tb.setBolt("text_parse", new ParseTextItem(), 2)
                 .shuffleGrouping("text_assemble", "text_item")
                 .shuffleGrouping("emwin_sort", "text_item")
-                .shuffleGrouping("decompress_zis", "text_item");
+                .shuffleGrouping("decompress_zis", "uncompressed_text");
 
         tb.setBolt("vtec_json", new vtecPostJSON(), 2).shuffleGrouping(
                 "text_parse", "vtec_item");
@@ -67,11 +70,11 @@ public class EMWINTopology {
 
         if (remote) {
             tb.setBolt("text_file_post", new HttpPostTextItem(), 2)
-                    .shuffleGrouping("text_parse", "text_item");
+                    .shuffleGrouping("text_parse", "parsed_text_item");
         } else {
             tb.setBolt("file_write", new WriteItemToFile(), 2)
-                    .shuffleGrouping("text_parse", "text_item")
-                    .shuffleGrouping("decompress_zis", "text_item");
+                    .shuffleGrouping("text_parse", "parsed_text_item")
+                    .shuffleGrouping("decompress_zis", "uncompressed_text");
         }
 
         Config conf = new Config();
